@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="POST" action="{{ url_for('login_func') }}" novalidate>
+    {# <form>: An HTML form with two input fields and one submit button
+    action: when do a submit, where should it go
+    novalidate: stop the browser doing the validation, server do it instead #}
+
+        {{ form.hidden_tag() }} {# protect against Cross Site Scripting #}
+
+        <div>
+            {{ form.username.label }}<br/>
+            {{ form.username(size=30) }}<br/>
+            {% for error in form.username.errors %}
+                <span style="color: red;">
+                    {{ error }} {# iterate over different validation errors the errors #}
+                </span>
+            {% endfor %}<br/>
+        </div>
+
+        <div>
+            {{ form.password.label }}<br/>
+            {{ form.password(size=30) }}<br/>
+            {% for error in form.password.errors %}
+                <span style="color: red;">
+                    {{ error }}
+                </span>
+            {% endfor %}<br/>
+        </div>
+
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+{% endblock content %}
