@@ -1,60 +1,57 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
 
 def build_full_urls():
-    source = requests.get('https://www.theguardian.com/uk').text
-    soup = BeautifulSoup(source, 'lxml')
+    response = requests.get('https://www.theguardian.com/uk').text
+    soup = BeautifulSoup(response, 'lxml')
 
-    '''construct full urls from all news page'''
-    full_urls = []
+    main_articles = soup.find_all('div', class_='dcr-4z6ajs')
+    for main_article in main_articles:
 
-    articles = soup.find_all('div', class_='dcr-4z6ajs')
-    for article in articles:
-        # print(article.prettify())
+        main_article_url = f'https://www.theguardian.com{main_article.a['href']}'
+        headline, date, body, article_url = fetch_article_data(main_article_url)
 
-        full_url = f'https://www.theguardian.com{article.a['href']}'
-        full_urls.append(full_url)
+        # print(f"Headline: {headline}")
+        # print(f"Date: {date}")
+        # print(f"Body: {body}")
+        # print(f"URL: {article_url}\n")
 
-        sub_articles = article.find_all('li', class_='dcr-8x9syc')
+        sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
         if sub_articles:
             for sub_article in sub_articles:
 
-                sub_full_url = f'https://www.theguardian.com{sub_article.a['href']}'
-                full_urls.append(sub_full_url)
+                sub_article_url = f'https://www.theguardian.com{sub_article.a['href']}'
+                headline, date, body, article_url = fetch_article_data(sub_article_url)
 
-    return full_urls
+                # print(f"Headline: {headline}")
+                # print(f"Date: {date}")
+                # print(f"Body: {body}")
+                # print(f"URL: {article_url}\n")
 
 
-# print(build_full_urls())
+def fetch_article_data(article_url):
 
+    response = requests.get(article_url).text
+    soup = BeautifulSoup(response, 'lxml')
 
-def extract_articles(full_urls):
+    try:
+        headline = soup.h1.text.strip()
+    except AttributeError:
+        headline = None
 
-    full_articles = ''
-
-    for full_url in full_urls:
-        source = requests.get(full_url).text
-        soup = BeautifulSoup(source, 'lxml')
-
-        '''construct full articles for all urls'''
-
-        headline = soup.h1.text
-        full_articles += f'{headline}\n'
-
+    try:
+        date = soup.find('span', class_='dcr-u0h1qy').text
+    except AttributeError:
         try:
-            sub_headline = soup.find('div', style='--grid-area:standfirst;').p.text
+            date = soup.find('div', class_='dcr-1pexjb9').text
         except AttributeError:
-            sub_headline = 'None'
-        full_articles += f'{sub_headline}\n'
+            date = None
 
-        try:
-            body = soup.find('div', id='maincontent').get_text(separator='', strip=True)
-        except AttributeError:
-            body = 'None'
-        full_articles += f'{body}\n\n'
+    body = soup.find('div', class_='dcr-1qg0p6f')
+    body = body.get_text(separator=' ', strip=True) if body else None
 
-    return full_articles
+    return headline, date, body, article_url
 
 
-print(extract_articles(build_full_urls()))
+# build_full_urls()
