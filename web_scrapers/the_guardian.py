@@ -3,9 +3,16 @@ from bs4 import BeautifulSoup
 import random
 import time
 from fake_useragent import UserAgent
+from datetime import datetime
 
 ua = UserAgent()
 total_fetched_articles = 0
+
+
+def format_date(date_text):
+    parsed_date = datetime.strptime(date_text, '%a %d %b %Y %H.%M %Z')
+    formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted_date
 
 
 def fetch_article_data(article_url):
@@ -17,14 +24,14 @@ def fetch_article_data(article_url):
     soup = BeautifulSoup(response, 'lxml')
 
     try:
-        maincontent = soup.find('div', id='maincontent')
+        maincontent = soup.find('div', class_='dcr-hm3fhj')
         paragraphs = maincontent.find_all('p')
         body = ' '.join(p.text for p in paragraphs)
         if len(body) == 0:
             return False
     except AttributeError:
         return False
-    time.sleep(random.uniform(1, 2))
+    # time.sleep(random.uniform(1, 2))
 
     try:
         headline = soup.h1.text.strip()
@@ -32,16 +39,16 @@ def fetch_article_data(article_url):
         headline = None
 
     try:
-        date = soup.find('span', class_='dcr-u0h1qy').text
+        formatted_date = format_date(soup.find('span', class_='dcr-u0h1qy').text)
     except AttributeError:
         try:
-            date = soup.find('div', class_='dcr-1pexjb9').text
+            formatted_date = format_date(soup.find('div', class_='dcr-1pexjb9').text)
         except AttributeError:
-            date = None
+            formatted_date = None
 
     total_fetched_articles += 1
 
-    return headline, date, body, article_url
+    return headline, formatted_date, body, article_url
 
 
 def build_full_urls():
@@ -68,9 +75,9 @@ def print_article_data(article_url):
 
     article_data = fetch_article_data(article_url)
     if article_data:
-        headline, date, body, article_url = article_data
+        headline, formatted_date, body, article_url = article_data
         print(f"Headline: {headline}")
-        print(f"Date: {date}")
+        print(f"Date: {formatted_date}")
         print(f"Body: {body}")
         print(f"URL: {article_url}\n")
 
