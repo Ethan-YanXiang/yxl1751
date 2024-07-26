@@ -1,4 +1,4 @@
-from .dailymail_scraper import crawl_dailymail
-from .guardian_scraper import crawl_guardian
+from .dailymail_scraper import dailymail_scraper
+from .guardian_scraper import guardian_scraper
 
-__all__ = ['crawl_dailymail', 'crawl_guardian']
+__all__ = ['dailymail_scraper', 'guardian_scraper']

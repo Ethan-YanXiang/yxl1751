@@ -1,15 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
+from data_collection.database import save_news_to_db, news_already_in_db
+from fake_useragent import UserAgent
 import random
 import time
-from fake_useragent import UserAgent
-from datetime import datetime
-from data_collection.database.web_scrapers_db import save_news_to_db, news_already_in_db
 
 ua = UserAgent()
 
 
 def format_date(date_text):
+
     parsed_date = datetime.strptime(date_text, '%a %d %b %Y %H.%M %Z')
     formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
     return formatted_date
@@ -49,7 +50,7 @@ def fetch_article_data(article_url):
 count = 1
 
 
-def crawl_guardian():
+def guardian_scraper():
 
     global count
 
@@ -66,7 +67,7 @@ def crawl_guardian():
         main_article_data = fetch_article_data(main_article_url)
         if main_article_data:
             save_news_to_db(main_article_data)
-            time.sleep(random.uniform(1, 2))
+            # time.sleep(random.uniform(1, 2))
             print(f'news {count}: {main_article_data[0]} added to database')
             count += 1
 
@@ -80,6 +81,6 @@ def crawl_guardian():
                 sub_article_data = fetch_article_data(sub_article_url)
                 if sub_article_data:
                     save_news_to_db(sub_article_data)
-                    time.sleep(random.uniform(1, 2))
+                    # time.sleep(random.uniform(1, 2))
                     print(f'news {count}: {sub_article_data[0]} added to database')
                     count += 1

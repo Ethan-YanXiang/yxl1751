@@ -1,11 +1,11 @@
-from web_scrapers import crawl_dailymail, crawl_guardian
+from web_scrapers import dailymail_scraper, guardian_scraper
 from database import create_db
 
 
 def main():
     create_db()
-    crawl_dailymail()
-    crawl_guardian()
+    dailymail_scraper()
+    guardian_scraper()
 
 
 if __name__ == '__main__':
