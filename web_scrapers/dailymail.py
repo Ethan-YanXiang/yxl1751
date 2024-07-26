@@ -65,20 +65,8 @@ def crawl_dailymail():
         if article_data:
             save_news_to_db(article_data)
             time.sleep(random.uniform(1, 2))
-            print(f'news {count}: {article_url} added to database')
+            print(f'news {count}: [{article_data[0]}] added to database')
             count += 1
-        # print_article_data(article_url)
-
-
-# def print_article_data(article_url):
-#
-#     article_data = fetch_article_data(article_url)
-#     if article_data:
-#         headline, formatted_date, body, article_url = article_data
-#         print(f"Headline: {headline}")
-#         print(f"Date: {formatted_date}")
-#         print(f"Body: {body}")
-#         print(f"URL: {article_url}\n")
 
 
 if __name__ == '__main__':

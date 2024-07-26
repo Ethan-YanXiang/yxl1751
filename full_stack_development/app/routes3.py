@@ -1,7 +1,8 @@
-from app import app
+from app import app, db
 # 從 py檔(模組) 調用 實例
 from app.forms1 import LoginForm, RegistrationForm
 # 從 包.py檔(模組) 調用 類
+from app.models import News
 
 from flask import render_template, redirect, url_for, flash  # 一次性 error message
 from datetime import datetime

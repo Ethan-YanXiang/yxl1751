@@ -67,9 +67,8 @@ def crawl_guardian():
         if main_article_data:
             save_news_to_db(main_article_data)
             time.sleep(random.uniform(1, 2))
-            print(f'news {count}: {main_article_url} added to database')
+            print(f'news {count}: {main_article_data[0]} added to database')
             count += 1
-        # print_article_data(main_article_url)
 
         sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
         if sub_articles:
@@ -82,20 +81,8 @@ def crawl_guardian():
                 if sub_article_data:
                     save_news_to_db(sub_article_data)
                     time.sleep(random.uniform(1, 2))
-                    print(f'news {count}: {sub_article_url} added to database')
+                    print(f'news {count}: {sub_article_data[0]} added to database')
                     count += 1
-                # print_article_data(sub_article_url)
-
-
-# def print_article_data(article_url):
-#
-#     article_data = fetch_article_data(article_url)
-#     if article_data:
-#         headline, formatted_date, body, article_url = article_data
-#         print(f"Headline: {headline}")
-#         print(f"Date: {formatted_date}")
-#         print(f"Body: {body}")
-#         print(f"URL: {article_url}\n")
 
 
 if __name__ == '__main__':

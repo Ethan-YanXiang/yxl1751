@@ -12,10 +12,10 @@ def create_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS news (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        headline TEXT,
-        published_date TEXT,
-        body TEXT,
-        url TEXT UNIQUE
+        headline TEXT NOT NULL,
+        published_date TEXT NOT NULL,
+        body TEXT NOT NULL,
+        url TEXT UNIQUE NOT NULL
     )
     ''')
 
@@ -27,12 +27,14 @@ def save_news_to_db(article_data):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''
-    INSERT INTO news (headline, published_date, body, url)
-    VALUES (?, ?, ?, ?)
-    ''', article_data)
-
-    conn.commit()
+    try:
+        cursor.execute('''
+        INSERT INTO news (headline, published_date, body, url)
+        VALUES (?, ?, ?, ?)
+        ''', article_data)
+        conn.commit()
+    except sqlite3.IntegrityError:
+        print(f'{article_data[-1]} already exists')
     conn.close()
 
 
