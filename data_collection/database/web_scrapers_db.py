@@ -2,7 +2,7 @@ import os
 import sqlite3
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, '..', 'web_scrapers.sqlite')
+db_path = os.path.join(basedir, 'web_scrapers.sqlite')
 
 
 def create_db():
@@ -47,6 +47,3 @@ def news_already_in_db(article_url):
 
     conn.close()
     return exists
-
-
-create_db()

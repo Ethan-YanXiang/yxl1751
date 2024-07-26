@@ -4,7 +4,7 @@ import random
 import time
 from fake_useragent import UserAgent
 from datetime import datetime
-from web_scrapers.db import save_news_to_db, news_already_in_db
+from data_collection.database.web_scrapers_db import save_news_to_db, news_already_in_db
 
 ua = UserAgent()
 
@@ -83,7 +83,3 @@ def crawl_guardian():
                     time.sleep(random.uniform(1, 2))
                     print(f'news {count}: {sub_article_data[0]} added to database')
                     count += 1
-
-
-if __name__ == '__main__':
-    crawl_guardian()
