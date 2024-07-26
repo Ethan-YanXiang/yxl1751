@@ -46,7 +46,12 @@ def fetch_article_data(article_url):
     return headline, formatted_date, body, article_url
 
 
+count = 1
+
+
 def crawl_guardian():
+
+    global count
 
     headers = {'User-Agent': ua.random}
     response = requests.get('https://www.theguardian.com/uk', headers=headers).text
@@ -54,23 +59,31 @@ def crawl_guardian():
 
     main_articles = soup.find_all('div', class_='dcr-4z6ajs')
     for main_article in main_articles:
-        main_article_url = f'https://www.theguardian.com{main_article.a['href']}'
-        if not news_already_in_db(main_article_url):
-            main_article_data = fetch_article_data(main_article_url)
-            if main_article_data:
-                save_news_to_db(main_article_data)
-                time.sleep(random.uniform(1, 2))
+        main_article_url = f'https://www.theguardian.com{main_article.a["href"]}'
+        if news_already_in_db(main_article_url):
+            print(f'{main_article_url} is already in database')
+            continue
+        main_article_data = fetch_article_data(main_article_url)
+        if main_article_data:
+            save_news_to_db(main_article_data)
+            time.sleep(random.uniform(1, 2))
+            print(f'news {count}: {main_article_url} added to database')
+            count += 1
         # print_article_data(main_article_url)
 
         sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
         if sub_articles:
             for sub_article in sub_articles:
-                sub_article_url = f'https://www.theguardian.com{sub_article.a['href']}'
-                if not news_already_in_db(sub_article_url):
-                    sub_article_data = fetch_article_data(sub_article_url)
-                    if sub_article_data:
-                        save_news_to_db(sub_article_data)
-                        time.sleep(random.uniform(1, 2))
+                sub_article_url = f'https://www.theguardian.com{sub_article.a["href"]}'
+                if news_already_in_db(sub_article_url):
+                    print(f'{sub_article_url} is already in database')
+                    continue
+                sub_article_data = fetch_article_data(sub_article_url)
+                if sub_article_data:
+                    save_news_to_db(sub_article_data)
+                    time.sleep(random.uniform(1, 2))
+                    print(f'news {count}: {sub_article_url} added to database')
+                    count += 1
                 # print_article_data(sub_article_url)
 
 

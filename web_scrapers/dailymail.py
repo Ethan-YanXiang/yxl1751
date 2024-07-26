@@ -41,7 +41,12 @@ def fetch_article_data(article_url):
     return headline, formatted_date, body, article_url
 
 
+count = 1
+
+
 def crawl_dailymail():
+
+    global count
 
     headers = {'User-Agent': ua.random}
     base_url = 'https://www.dailymail.co.uk'
@@ -53,11 +58,15 @@ def crawl_dailymail():
         article_url = article.a['href']
         if not article_url.startswith('http'):
             article_url = base_url + article_url
-        if not news_already_in_db(article_url):
-            article_data = fetch_article_data(article_url)
-            if article_data:
-                save_news_to_db(article_data)
-                time.sleep(random.uniform(1, 2))
+        if news_already_in_db(article_url):
+            print(f'{article_url} is already in database')
+            continue
+        article_data = fetch_article_data(article_url)
+        if article_data:
+            save_news_to_db(article_data)
+            time.sleep(random.uniform(1, 2))
+            print(f'news {count}: {article_url} added to database')
+            count += 1
         # print_article_data(article_url)
 
 

@@ -30,6 +30,7 @@ def save_news_to_db(article_data):
     INSERT INTO news (headline, published_date, body, url)
     VALUES (?, ?, ?, ?)
     ''', article_data)
+
     conn.commit()
     conn.close()
 
@@ -37,8 +38,10 @@ def save_news_to_db(article_data):
 def news_already_in_db(article_url):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+
     cursor.execute('SELECT 1 FROM news WHERE url=?', (article_url,))
     exists = cursor.fetchone() is not None
+
     conn.close()
     return exists
 
