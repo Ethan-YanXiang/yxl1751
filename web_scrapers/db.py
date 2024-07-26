@@ -1,7 +1,8 @@
 import os
 import sqlite3
 
-db_path = os.path.join(os.path.dirname(__file__), 'web_scrapers.db')
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, '..', 'web_scrapers.sqlite')
 
 
 def create_db():
