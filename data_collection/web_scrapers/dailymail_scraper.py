@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from data_collection.database import save_news_to_db, news_already_in_db
+from data_collection.feature_engineering import body_to_vectors
 from fake_useragent import UserAgent
 import random
 import time
@@ -25,12 +26,12 @@ def fetch_article_data(article_url):
     try:
         maincontent = soup.find('div', itemprop='articleBody')
         paragraphs = maincontent.find_all('p', class_='mol-para-with-font')
-        body = ' '.join(p.text for p in paragraphs)
+        body = ' '.join(p.text.strip() for p in paragraphs)
     except AttributeError:
         body = None
 
     try:
-        headline = soup.h1.text
+        headline = soup.h1.text.strip()
     except AttributeError:
         headline = None
 
@@ -65,6 +66,8 @@ def dailymail_scraper():
         article_data = fetch_article_data(article_url)
         if article_data:
             save_news_to_db(article_data)
-            # time.sleep(random.uniform(1, 2))
             print(f'news {count}: [{article_data[0]}] added to database')
             count += 1
+            # time.sleep(random.uniform(1, 2))
+            tfidf_matrix, feature_names = body_to_vectors(article_data[2])
+            print(tfidf_matrix, feature_names)

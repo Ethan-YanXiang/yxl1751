@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from data_collection.database import save_news_to_db, news_already_in_db
+from data_collection.feature_engineering import body_to_vectors
 from fake_useragent import UserAgent
 import random
 import time
@@ -25,7 +26,7 @@ def fetch_article_data(article_url):
     try:
         maincontent = soup.find('div', class_='dcr-hm3fhj')
         paragraphs = maincontent.find_all('p')
-        body = ' '.join(p.text for p in paragraphs)
+        body = ' '.join(p.text.strip() for p in paragraphs)
         if len(body) == 0:
             return False
     except AttributeError:
@@ -37,10 +38,10 @@ def fetch_article_data(article_url):
         headline = None
 
     try:
-        formatted_date = format_date(soup.find('span', class_='dcr-u0h1qy').text)
+        formatted_date = format_date(soup.find('span', class_='dcr-u0h1qy').text.strip())
     except AttributeError:
         try:
-            formatted_date = format_date(soup.find('div', class_='dcr-1pexjb9').text)
+            formatted_date = format_date(soup.find('div', class_='dcr-1pexjb9').text.strip())
         except AttributeError:
             formatted_date = None
 
@@ -67,9 +68,11 @@ def guardian_scraper():
         main_article_data = fetch_article_data(main_article_url)
         if main_article_data:
             save_news_to_db(main_article_data)
-            # time.sleep(random.uniform(1, 2))
             print(f'news {count}: {main_article_data[0]} added to database')
             count += 1
+            # time.sleep(random.uniform(1, 2))
+            tfidf_matrix, feature_names = body_to_vectors(main_article_data[2])
+            print(tfidf_matrix, feature_names)
 
         sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
         if sub_articles:
@@ -81,6 +84,8 @@ def guardian_scraper():
                 sub_article_data = fetch_article_data(sub_article_url)
                 if sub_article_data:
                     save_news_to_db(sub_article_data)
-                    # time.sleep(random.uniform(1, 2))
                     print(f'news {count}: {sub_article_data[0]} added to database')
                     count += 1
+                    # time.sleep(random.uniform(1, 2))
+                    tfidf_matrix, feature_names = body_to_vectors(sub_article_data[2])
+                    print(tfidf_matrix, feature_names)
