@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from data_collection.database import save_news_to_db, news_already_in_db
-from data_collection.feature_engineering import body_to_vectors
+from data_collection.feature_engineering import train_tfidf_vectorizer, body_to_vectors
 from fake_useragent import UserAgent
 import random
 import time
@@ -49,6 +49,7 @@ count = 1
 def dailymail_scraper():
 
     global count
+    bodies = []
 
     headers = {'User-Agent': ua.random}
     base_url = 'https://www.dailymail.co.uk'
@@ -69,5 +70,11 @@ def dailymail_scraper():
             print(f'news {count}: [{article_data[0]}] added to database')
             count += 1
             # time.sleep(random.uniform(1, 2))
-            tfidf_matrix, feature_names = body_to_vectors(article_data[2])
-            print(tfidf_matrix, feature_names)
+            bodies.append(article_data[2])
+            if bodies:
+                train_tfidf_vectorizer(bodies)
+                tfidf_matrix, feature_names = body_to_vectors(article_data[2])
+                print(tfidf_matrix, feature_names)
+
+
+dailymail_scraper()
