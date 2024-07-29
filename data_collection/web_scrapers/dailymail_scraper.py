@@ -71,10 +71,10 @@ def dailymail_scraper():
             count += 1
             # time.sleep(random.uniform(1, 2))
             bodies.append(article_data[2])
-            if bodies:
-                train_tfidf_vectorizer(bodies)
-                tfidf_matrix, feature_names = body_to_vectors(article_data[2])
-                print(tfidf_matrix, feature_names)
+
+            train_tfidf_vectorizer(bodies)
+            tfidf_matrix, feature_names = body_to_vectors(article_data[2])
+            print(tfidf_matrix, feature_names)
 
 
 dailymail_scraper()
