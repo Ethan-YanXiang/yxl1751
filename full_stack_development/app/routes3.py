@@ -53,3 +53,16 @@ def register_func():
         flash(f'Registration for {form.username.data} received', 'success')
         return redirect(url_for('home_func'))
     return render_template('registration.html', title='Register', form=form)
+
+
+@app.route('/clusters')
+def show_clusters():
+    clusters = Cluster.query.all()
+    return render_template('clusters.html', clusters=clusters)
+
+
+@app.route('/cluster/<int:cluster_id>')
+def show_cluster_articles(cluster_id):
+    cluster = Cluster.query.get_or_404(cluster_id)
+    articles = Article.query.filter_by(cluster_id=cluster_id).all()
+    return render_template('cluster_articles.html', cluster=cluster, articles=articles)

@@ -22,10 +22,12 @@ class Article(db.Model):
     published_date = db.Column(db.String, nullable=False)
     body = db.Column(db.Text, nullable=False)
     url = db.Column(db.String, unique=True, nullable=False)
-    cluster_id = db.Column(db.Integer, db.ForeignKey('cluster.id'))
+    cluster_id = db.Column(db.Integer, db.ForeignKey('cluster.id'), nullable=True)
 
 
 class Cluster(db.Model):
+    __tablename__ = 'cluster'
     id = db.Column(db.Integer, primary_key=True)
+    cluster_center = db.Column(db.PickleType, nullable=False)
     keywords = db.Column(db.String, nullable=False)
     articles = db.relationship('Article', backref='cluster', lazy=True)
