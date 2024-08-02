@@ -6,6 +6,7 @@ from data_collection.database import save_news_to_db, news_already_in_db
 from fake_useragent import UserAgent
 import random
 import time
+from flask import current_app
 
 ua = UserAgent()
 
@@ -47,20 +48,21 @@ def fetch_article_data(article_url):
     return headline, formatted_date, body, article_url
 
 
-def process_article(article_url):
-    if news_already_in_db(article_url):
-        print(f'{article_url} already in database')
-        return None
-    article_data = fetch_article_data(article_url)
-    if article_data:
-        headline, formatted_date, body, url = article_data
-        save_news_to_db(headline, formatted_date, body, url)
-        print(f'{headline} added to database')
-        return body
+def process_article(article_url, app_context):
+    with app_context:
+        if news_already_in_db(article_url):
+            print(f'{article_url} already in database')
+            return None
+        article_data = fetch_article_data(article_url)
+        if article_data:
+            headline, formatted_date, body, url = article_data
+            save_news_to_db(headline, formatted_date, body, url)
+            print(f'{headline} added to database')
+            return body
     return None
 
 
-def guardian_scraper():
+def guardian_scraper(app_context):
     bodies = []
 
     headers = {'User-Agent': ua.random}
@@ -74,13 +76,13 @@ def guardian_scraper():
         main_articles = soup.find_all('div', class_='dcr-4z6ajs')
         for main_article in main_articles:
             main_article_url = f'https://www.theguardian.com{main_article.a["href"]}'
-            futures.append(executor.submit(process_article, main_article_url))
+            futures.append(executor.submit(process_article, main_article_url, app_context))
 
             sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
             if sub_articles:
                 for sub_article in sub_articles:
                     sub_article_url = f'https://www.theguardian.com{sub_article.a["href"]}'
-                    futures.append(executor.submit(process_article, sub_article_url))
+                    futures.append(executor.submit(process_article, sub_article_url, app_context))
 
         for future in concurrent.futures.as_completed(futures):
             body = future.result()

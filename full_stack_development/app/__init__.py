@@ -24,3 +24,10 @@ from full_stack_development.app.models import *  # we need all the classes in ap
 @app.shell_context_processor  # tell flask shell to import these variables to db.create_all(); db.session.commit()
 def make_shell_context():
     return dict(db=db, Article=Article, Cluster=Cluster, datetime=datetime)
+
+
+@app.cli.command("init-db")
+def initialize_database():
+    from data_collection.run_scrapers import main
+    main()
+    print("Database initialized and data scraped.")

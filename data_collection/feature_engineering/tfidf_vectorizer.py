@@ -27,4 +27,4 @@ def body_to_vectors(body, tfidf_vectorizer=None):
 
     tfidf_matrix = tfidf_vectorizer.transform([body])
     feature_names = tfidf_vectorizer.get_feature_names_out()
-    return tfidf_matrix
+    return tfidf_matrix, feature_names

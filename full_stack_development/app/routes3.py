@@ -58,11 +58,17 @@ def register_func():
 @app.route('/clusters')
 def show_clusters():
     clusters = Cluster.query.all()
-    return render_template('clusters.html', clusters=clusters)
+    return render_template('clusters.html', clusters=clusters, title="News Clusters")
 
 
 @app.route('/cluster/<int:cluster_id>')
 def show_cluster_articles(cluster_id):
     cluster = Cluster.query.get_or_404(cluster_id)
     articles = Article.query.filter_by(cluster_id=cluster_id).all()
-    return render_template('cluster_articles.html', cluster=cluster, articles=articles)
+    return render_template('cluster_articles.html', cluster=cluster, articles=articles, title="Cluster Articles")
+
+
+@app.route('/article/<int:article_id>')
+def show_article(article_id):
+    article = Article.query.get_or_404(article_id)
+    return render_template('article.html', article=article, title=article.headline)

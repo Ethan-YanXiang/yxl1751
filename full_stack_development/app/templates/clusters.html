@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>News Clusters</h1>
+    <ul>
+        {% for cluster in clusters %}
+        <li>
+            <a href="{{ url_for('show_cluster_articles', cluster_id=cluster.id) }}">{{ cluster.keywords | join(', ') }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

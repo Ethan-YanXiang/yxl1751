@@ -6,6 +6,7 @@ from data_collection.database import save_news_to_db, news_already_in_db
 from fake_useragent import UserAgent
 import random
 import time
+from flask import current_app
 
 ua = UserAgent()
 base_url = 'https://www.dailymail.co.uk'
@@ -43,24 +44,25 @@ def fetch_article_data(article_url):
     return headline, formatted_date, body, article_url
 
 
-def process_article(article):
-    article_url = article.a['href']
-    if not article_url.startswith('http'):
-        article_url = base_url + article_url
+def process_article(article, app_context):
+    with app_context:
+        article_url = article.a['href']
+        if not article_url.startswith('http'):
+            article_url = base_url + article_url
 
-    if news_already_in_db(article_url):
-        print(f'{article_url} already in database')
-        return None
-    article_data = fetch_article_data(article_url)
-    if article_data:
-        headline, formatted_date, body, url = article_data
-        save_news_to_db(headline, formatted_date, body, url)
-        print(f'{headline} added to database')
-        return body
+        if news_already_in_db(article_url):
+            print(f'{article_url} already in database')
+            return None
+        article_data = fetch_article_data(article_url)
+        if article_data:
+            headline, formatted_date, body, url = article_data
+            save_news_to_db(headline, formatted_date, body, url)
+            print(f'{headline} added to database')
+            return body
     return None
 
 
-def dailymail_scraper():
+def dailymail_scraper(app_context):
     bodies = []
 
     headers = {'User-Agent': ua.random}
@@ -69,7 +71,7 @@ def dailymail_scraper():
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         articles = soup.find_all('h2', class_='linkro-darkred')
-        futures = [executor.submit(process_article, article) for article in articles]
+        futures = [executor.submit(process_article, article, app_context) for article in articles]
 
         for future in concurrent.futures.as_completed(futures):
             body = future.result()
