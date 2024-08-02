@@ -4,6 +4,7 @@ from datetime import datetime
 import concurrent.futures
 from data_collection.database import save_news_to_db, news_already_in_db
 from data_collection.feature_engineering import train_and_save_tfidf_vectorizer, body_to_vectors
+from data_collection.unsupervised_machine_learning import real_time_single_pass_clustering
 from fake_useragent import UserAgent
 import random
 import time
@@ -80,4 +81,5 @@ def dailymail_scraper():
         tfidf_vectorizer = train_and_save_tfidf_vectorizer(bodies)
         for body in bodies:
             tfidf_matrix, feature_names = body_to_vectors(body, tfidf_vectorizer)
-            print(tfidf_matrix, feature_names)
+            clusters, cluster_keywords = real_time_single_pass_clustering(tfidf_matrix)
+            print(f'{clusters} clusters and {cluster_keywords}')

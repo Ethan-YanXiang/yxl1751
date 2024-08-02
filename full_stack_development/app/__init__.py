@@ -15,10 +15,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # preventing getting error
 db = SQLAlchemy(app)  # all the interactions to the database are gonna come through this variable
 
 
-from app import routes3
+from full_stack_development.app import routes3
 # from app package import views module
 # putting all the routes inside our app
-from app.models import *  # we need all the classes in app.models for the following steps
+from full_stack_development.app.models import *  # we need all the classes in app.models for the following steps
 
 
 @app.shell_context_processor  # tell flask shell to import these variables to db.create_all(); db.session.commit()
