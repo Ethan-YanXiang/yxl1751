@@ -6,14 +6,15 @@ def create_db():
     db.create_all()
 
 
-def save_news_to_db(headline, published_date, body, url, cluster_id=None):
-    article = Article(headline=headline, published_date=published_date, body=body, url=url, cluster_id=cluster_id)
-    db.session.add(article)
-    db.session.commit()
-
-
 def news_already_in_db(article_url):
     return Article.query.filter_by(url=article_url).first() is not None
+
+
+def save_news_to_db(headline, formatted_date, body, url, cluster_id=None):
+    article = Article(headline=headline, published_date=formatted_date, body=body, url=url, cluster_id=cluster_id)
+    db.session.add(article)
+    db.session.commit()
+    return article.id
 
 
 def save_cluster_to_db(cluster_center, keywords):
@@ -33,3 +34,9 @@ def update_cluster_in_db(cluster_id, cluster_center, keywords):
 def get_clusters_from_db():
     clusters = Cluster.query.all()
     return [(cluster.id, cluster.cluster_center, cluster.keywords.split(',')) for cluster in clusters]
+
+
+def link_cluster_with_news(article_id, cluster_id):
+    article = Article.query.get(article_id)
+    article.cluster_id = cluster_id
+    db.session.commit()

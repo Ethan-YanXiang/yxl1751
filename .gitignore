@@ -164,8 +164,11 @@ cython_debug/
 # Ignore macOS DS_Store files
 .DS_Store
 
-# Ignore .sqlite
-.sqlite
+# Ignore data.sqlite
+data.sqlite
 
-# Ignore .pkl
-.pkl
+# Ignore tfidf_vectorizer.pkl
+tfidf_vectorizer.pkl
+
+# Ignore corpus.pkl
+corpus.pkl

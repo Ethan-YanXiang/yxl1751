@@ -1,12 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import concurrent.futures
-from data_collection.database import save_news_to_db, news_already_in_db
+from data_collection.database import news_already_in_db, save_news_to_db, link_cluster_with_news
+from data_collection.feature_engineering import save_corpus, train_and_save_tfidf_vectorizer, load_tfidf_vectorizer, body_to_vectors
+from data_collection.unsupervised_machine_learning import real_time_single_pass_clustering
 from fake_useragent import UserAgent
 import random
 import time
-from flask import current_app
 
 ua = UserAgent()
 
@@ -48,45 +48,51 @@ def fetch_article_data(article_url):
     return headline, formatted_date, body, article_url
 
 
-def process_article(article_url, app_context):
-    with app_context:
-        if news_already_in_db(article_url):
-            print(f'{article_url} already in database')
-            return None
-        article_data = fetch_article_data(article_url)
-        if article_data:
-            headline, formatted_date, body, url = article_data
-            save_news_to_db(headline, formatted_date, body, url)
-            print(f'{headline} added to database')
-            return body
-    return None
-
-
-def guardian_scraper(app_context):
-    bodies = []
+def guardian_scraper():
+    from full_stack_development.app import app
 
     headers = {'User-Agent': ua.random}
     response = requests.get('https://www.theguardian.com/uk', headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-
-        futures = []
-
+    with app.app_context():
         main_articles = soup.find_all('div', class_='dcr-4z6ajs')
         for main_article in main_articles:
             main_article_url = f'https://www.theguardian.com{main_article.a["href"]}'
-            futures.append(executor.submit(process_article, main_article_url, app_context))
+
+            if news_already_in_db(main_article_url):
+                print(f'{main_article_url} already in database')
+                continue
+            article_data = fetch_article_data(main_article_url)
+            if article_data:
+                headline, formatted_date, body, url = article_data
+                article_id = save_news_to_db(headline, formatted_date, body, url)
+                print(f'{headline} added to database')
+
+                corpus = save_corpus(body)
+                train_and_save_tfidf_vectorizer(corpus)
+                tfidf_vectorizer = load_tfidf_vectorizer()
+                tfidf_matrix, feature_names = body_to_vectors(body, tfidf_vectorizer)
+                cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+                link_cluster_with_news(article_id, cluster_id)
 
             sub_articles = main_article.find_all('li', class_='dcr-8x9syc')
             if sub_articles:
                 for sub_article in sub_articles:
                     sub_article_url = f'https://www.theguardian.com{sub_article.a["href"]}'
-                    futures.append(executor.submit(process_article, sub_article_url, app_context))
 
-        for future in concurrent.futures.as_completed(futures):
-            body = future.result()
-            if body:
-                bodies.append(body)
+                    if news_already_in_db(sub_article_url):
+                        print(f'{sub_article_url} already in database')
+                        continue
+                    article_data = fetch_article_data(sub_article_url)
+                    if article_data:
+                        headline, formatted_date, body, url = article_data
+                        article_id = save_news_to_db(headline, formatted_date, body, url)
+                        print(f'{headline} added to database')
 
-    return bodies
+                        corpus = save_corpus(body)
+                        train_and_save_tfidf_vectorizer(corpus)
+                        tfidf_vectorizer = load_tfidf_vectorizer()
+                        tfidf_matrix, feature_names = body_to_vectors(body, tfidf_vectorizer)
+                        cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+                        link_cluster_with_news(article_id, cluster_id)
