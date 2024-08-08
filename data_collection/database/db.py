@@ -1,8 +1,13 @@
+import os
 from full_stack_development.app import db
 from full_stack_development.app.models import Cluster, Article
 
 
 def create_db():
+    # basedir = os.path.abspath(os.path.dirname(__file__))
+    # if os.path.exists(basedir, 'data', 'data.sqlite'):
+    #     with open(basedir, 'data', 'data.sqlite') as f:
+    # else:
     db.create_all()
 
 

@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from data_collection.database import news_already_in_db, save_news_to_db, link_cluster_with_news
-from data_collection.feature_engineering import save_corpus, train_and_save_tfidf_vectorizer, load_tfidf_vectorizer, body_to_vectors
+from data_collection.feature_engineering import save_corpus, body_to_vectors
 from data_collection.unsupervised_machine_learning import real_time_single_pass_clustering
 from fake_useragent import UserAgent
 import random
@@ -19,7 +19,7 @@ def format_date(date_text):
 
 
 def fetch_article_data(article_url):
-    time.sleep(random.uniform(0, 1))
+    # time.sleep(random.uniform(0, 1))
     headers = {'User-Agent': ua.random}
     response = requests.get(article_url, headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
@@ -67,9 +67,7 @@ def dailymail_scraper():
                 article_id = save_news_to_db(headline, formatted_date, body, url)
                 print(f'{headline} added to database')
 
-                corpus = save_corpus(body)
-                train_and_save_tfidf_vectorizer(corpus)
-                tfidf_vectorizer = load_tfidf_vectorizer()
-                tfidf_matrix, feature_names = body_to_vectors(body, tfidf_vectorizer)
+                # save_corpus(body)
+                tfidf_matrix, feature_names = body_to_vectors(body)
                 cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
                 link_cluster_with_news(article_id, cluster_id)

@@ -1,5 +1,6 @@
-from web_scrapers import dailymail_scraper, guardian_scraper
 from database import create_db
+from feature_engineering import train_and_save_tfidf_vectorizer
+from web_scrapers import dailymail_scraper, guardian_scraper
 
 
 def main():
@@ -8,7 +9,10 @@ def main():
     with app.app_context():
         create_db()
 
-        dailymail_scraper() and guardian_scraper()
+        train_and_save_tfidf_vectorizer()
+
+        dailymail_scraper()
+        guardian_scraper()
 
 
 if __name__ == '__main__':
