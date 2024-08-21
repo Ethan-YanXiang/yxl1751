@@ -1,14 +1,5 @@
-import os
-from full_stack_development.app import db
-from full_stack_development.app.models import Cluster, Article
-
-
-def create_db():
-    # basedir = os.path.abspath(os.path.dirname(__file__))
-    # if os.path.exists(basedir, 'data', 'data.sqlite'):
-    #     with open(basedir, 'data', 'data.sqlite') as f:
-    # else:
-    db.create_all()
+from app import db
+from app.models import Cluster, Article
 
 
 def news_already_in_db(article_url):
@@ -41,7 +32,7 @@ def get_clusters_from_db():
     return [(cluster.id, cluster.cluster_center, cluster.keywords.split(',')) for cluster in clusters]
 
 
-def link_cluster_with_news(article_id, cluster_id):
+def link_cluster_in_db(article_id, cluster_id):
     article = Article.query.get(article_id)
     article.cluster_id = cluster_id
     db.session.commit()

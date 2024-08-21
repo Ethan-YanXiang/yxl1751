@@ -1,4 +1,4 @@
-from full_stack_development.app import db
+from app import db
 # from package app import db: SQLAlchemy(app)
 
 
@@ -11,17 +11,9 @@ class Article(db.Model):
     url = db.Column(db.String, unique=True, nullable=False)
     cluster_id = db.Column(db.Integer, db.ForeignKey('cluster.id'), nullable=True)
 
-    # __tablename__ = 'article'
-    # id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    # headline = db.Column(db.Text, nullable=False)
-    # published_date = db.Column(db.Text, nullable=False)
-    # body = db.Column(db.Text, nullable=False)
-    # url = db.Column(db.Text, unique=True, nullable=False)
-    # cluster_id = db.Column(db.Integer, db.ForeignKey('cluster.id'), nullable=True)
-
-    # def __repr__(self):
-    #     return f"news('{self.headline}', '{self.published_date}', '{self.body}' , '{self.url}')"
-    #     # for an object, __repr__ generates the string representation the way we want in Flask server log
+    def __repr__(self):
+        return f"article('{self.headline}', '{self.published_date}', '{self.body}' , '{self.url}')"
+        # for an object, __repr__ generates the string representation the way we want in Flask server log
 
 
 class Cluster(db.Model):
@@ -30,3 +22,6 @@ class Cluster(db.Model):
     cluster_center = db.Column(db.PickleType, nullable=False)
     keywords = db.Column(db.String, nullable=False)
     articles = db.relationship('Article', backref='cluster', lazy=True)
+
+    def __repr__(self):
+        return f"cluster('{self.cluster_center}', '{self.keywords}')"

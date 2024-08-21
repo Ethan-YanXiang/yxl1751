@@ -1,8 +1,8 @@
-from full_stack_development.app import app, db
+from app import app
 # 從 py檔(模組) 調用 實例
-from full_stack_development.app.forms1 import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm
 # 從 包.py檔(模組) 調用 類
-from full_stack_development.app.models import Article, Cluster
+from app.models import Article, Cluster
 
 from flask import render_template, redirect, url_for, flash  # 一次性 error message
 from datetime import datetime

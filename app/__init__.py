@@ -15,19 +15,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # preventing getting error
 db = SQLAlchemy(app)  # all the interactions to the database are gonna come through this variable
 
 
-from full_stack_development.app import routes3
+from app.feature_engineering.tfidf_vectorizer import train_and_save_tfidf_vectorizer
+from app.web_scrapers.dailymail_scraper import dailymail_scraper
+from app.web_scrapers.guardian_scraper import guardian_scraper
+
+with app.app_context():
+    db.create_all()
+    train_and_save_tfidf_vectorizer()
+
+    dailymail_scraper()
+    guardian_scraper()
+
+
+from app import routes
 # from app package import views module
 # putting all the routes inside our app
-from full_stack_development.app.models import *  # we need all the classes in app.models for the following steps
+from app.models import *  # we need all the classes in app.models for the following steps
 
 
 @app.shell_context_processor  # tell flask shell to import these variables to db.create_all(); db.session.commit()
 def make_shell_context():
     return dict(db=db, Article=Article, Cluster=Cluster, datetime=datetime)
-
-
-@app.cli.command("init-db")
-def initialize_database():
-    from data_collection.run_scrapers import main
-    main()
-    print("Database initialized and data scraped.")

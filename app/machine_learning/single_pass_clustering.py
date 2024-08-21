@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from data_collection.database import save_cluster_to_db, update_cluster_in_db, get_clusters_from_db
+from app.database.db import save_cluster_to_db, update_cluster_in_db, get_clusters_from_db
 
 
 def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.3):
-    from full_stack_development.app import app
+    from app import app
 
     with app.app_context():
         clusters = get_clusters_from_db()
@@ -12,17 +12,18 @@ def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.3)
 
         if not clusters:
             keywords = get_top_keywords(tfidf_matrix, feature_names)
-            print(keywords)
             cluster_id = save_cluster_to_db(tfidf_matrix.tolist(), keywords)
+            print(f'{keywords}')
             return cluster_id
         else:
             similarities = [cosine_similarity([tfidf_matrix], [np.array(cluster[1])])[0][0] for cluster in clusters]
+            print(f'similarities: {similarities}')
             max_similarity_index = np.argmax(similarities)
             max_similarity_value = similarities[max_similarity_index]
 
             if max_similarity_value < threshold:
                 keywords = get_top_keywords(tfidf_matrix, feature_names)
-                print(f'{max_similarity_index}: {keywords}')
+                print(f'{max_similarity_value}: {keywords}')
                 cluster_id = save_cluster_to_db(tfidf_matrix.tolist(), keywords)
                 return cluster_id
             else:

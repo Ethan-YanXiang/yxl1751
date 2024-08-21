@@ -1,9 +1,11 @@
 import os
 import pickle
+from app import basedir
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-vectorizer_file = 'tfidf_vectorizer.pkl'
-corpus_file = 'corpus.pkl'
+basedir = basedir
+vectorizer_file = os.path.join(basedir, 'data', 'tfidf_vectorizer.pkl')
+corpus_file = os.path.join(basedir, 'data', 'corpus.pkl')
 
 
 def save_corpus(body):
