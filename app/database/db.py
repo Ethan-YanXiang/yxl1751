@@ -6,15 +6,15 @@ def news_already_in_db(article_url):
     return Article.query.filter_by(url=article_url).first() is not None
 
 
-def save_news_to_db(headline, formatted_date, body, url, cluster_id=None):
-    article = Article(headline=headline, published_date=formatted_date, body=body, url=url, cluster_id=cluster_id)
+def save_news_to_db(url, headline=None, published_date=None, body=None):
+    article = Article(headline=headline, published_date=published_date, body=body, url=url)
     db.session.add(article)
     db.session.commit()
     return article.id
 
 
 def save_cluster_to_db(cluster_center, keywords):
-    cluster = Cluster(cluster_center=cluster_center, keywords=','.join(keywords))
+    cluster = Cluster(cluster_center=cluster_center, keywords=keywords)
     db.session.add(cluster)
     db.session.commit()
     return cluster.id
@@ -23,7 +23,7 @@ def save_cluster_to_db(cluster_center, keywords):
 def update_cluster_in_db(cluster_id, cluster_center, keywords):
     cluster = Cluster.query.get(cluster_id)
     cluster.cluster_center = cluster_center
-    cluster.keywords = ','.join(keywords)
+    cluster.keywords = keywords
     db.session.commit()
 
 

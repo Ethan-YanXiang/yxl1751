@@ -14,18 +14,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # preventing getting error message
 db = SQLAlchemy(app)  # all the interactions to the database are gonna come through this variable
 
+# 預加載向量化器
 
-from app.feature_engineering.tfidf_vectorizer import train_and_save_tfidf_vectorizer
-from app.web_scrapers.dailymail_scraper import dailymail_scraper
-from app.web_scrapers.guardian_scraper import guardian_scraper
-
-with app.app_context():
-    db.create_all()
-    train_and_save_tfidf_vectorizer()
-
-    dailymail_scraper()
-    guardian_scraper()
-
+# 預加載聚類中心
 
 from app import routes
 # from app package import views module
