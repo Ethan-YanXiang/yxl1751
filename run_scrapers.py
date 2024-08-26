@@ -8,7 +8,7 @@ from app.web_scrapers.guardian_scraper import guardian_scraper
 def main():
     with app.app_context():
         db.create_all()
-        # train_and_save_tfidf_vectorizer()  # when corpus
+        train_and_save_tfidf_vectorizer()  # when corpus
 
         dailymail_scraper()
         guardian_scraper()

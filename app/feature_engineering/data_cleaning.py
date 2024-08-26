@@ -17,6 +17,6 @@ def clean_text(body):
     words = body.split()
 
     # 移除停用詞並進行詞形還原
-    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
+    words = ' '.join(lemmatizer.lemmatize(word) for word in words if word not in stop_words)
 
-    return ' '.join(words)
+    return words

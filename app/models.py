@@ -4,10 +4,10 @@ from app import db
 class Article(db.Model):
     __tablename__ = 'articles'
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    headline = db.Column(db.String)  # nullable=False
-    published_date = db.Column(db.String)  # nullable=False
-    body = db.Column(db.Text)  # nullable=False
-    url = db.Column(db.String, unique=True, nullable=False)
+    headline = db.Column(db.String)  # , nullable=False
+    published_date = db.Column(db.String)  # , nullable=False
+    body = db.Column(db.Text)  # , nullable=False
+    url = db.Column(db.String, nullable=False, unique=True)
     cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
     def __repr__(self):
@@ -17,7 +17,7 @@ class Article(db.Model):
 class Cluster(db.Model):
     __tablename__ = 'clusters'
     id = db.Column(db.Integer, primary_key=True)
-    cluster_center = db.Column(db.PickleType, nullable=False)  # Text
+    cluster_center = db.Column(db.Text, nullable=False)
     keywords = db.Column(db.String, nullable=False)
     articles = db.relationship('Article', backref='cluster', lazy=True)
 
