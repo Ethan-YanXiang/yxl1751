@@ -53,11 +53,11 @@ def fetch_article_data(article_url):
 
 def process_article(article_url):
     if news_already_in_db(article_url):
-        print(f'already in db: {article_url}\n')
+        print(f'already in db: {article_url}')
         return
     article_data = fetch_article_data(article_url)
     if article_data is None:
-        print(f'Failed to fetch all article data from: {article_url}\n')
+        print(f'Failed to fetch all article data from: {article_url}')
         return
 
     headline, published_date, body = article_data
