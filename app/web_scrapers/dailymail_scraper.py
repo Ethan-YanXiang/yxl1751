@@ -56,14 +56,14 @@ def process_article(article_url):
         print(f'already in db: {article_url}\n')
         return
     # save_news_to_db(article_url)
-    article_data = fetch_article_data(article_url)  # when corpus
+    article_data = fetch_article_data(article_url)
     if article_data is None:
         print(f'Failed to fetch all article data from: {article_url}\n')
         return
 
     headline, published_date, body = article_data
     # save_corpus(clean_text(body))
-    article_id = save_news_to_db(article_url, headline, published_date, body)
+    article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
     print(f'added {article_id} article to db: {headline}')
     tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
     cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
