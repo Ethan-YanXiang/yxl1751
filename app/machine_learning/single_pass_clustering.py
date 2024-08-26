@@ -3,7 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from app.database.db import save_cluster_to_db, update_cluster_in_db, get_clusters_from_db
 
 
-def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.5):
+def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.425):
 
     tfidf_matrix = tfidf_matrix.toarray()
     clusters = get_clusters_from_db()

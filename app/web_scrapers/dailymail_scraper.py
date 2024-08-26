@@ -30,6 +30,7 @@ def fetch_article_data(article_url):
 
     try:
         headline = soup.h1.text.strip()
+        headline = headline.replace('EXCLUSIVE', '').strip()
     except AttributeError:
         return None
 
