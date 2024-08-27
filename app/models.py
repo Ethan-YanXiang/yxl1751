@@ -4,9 +4,9 @@ from app import db
 class Article(db.Model):
     __tablename__ = 'articles'
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    headline = db.Column(db.String, nullable=False)  # True
-    published_date = db.Column(db.String, nullable=False)  # True
-    body = db.Column(db.Text, nullable=False)  # True
+    headline = db.Column(db.String, nullable=False)  # True when corpus
+    published_date = db.Column(db.String, nullable=False)  # True when corpus
+    body = db.Column(db.Text, nullable=False)  # True when corpus
     url = db.Column(db.String, nullable=False, unique=True)
     cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 

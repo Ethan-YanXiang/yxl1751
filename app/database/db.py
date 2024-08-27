@@ -6,7 +6,7 @@ def news_already_in_db(article_url):
     return db.session.query(Article.url).filter_by(url=article_url).first() is not None
 
 
-def save_news_to_db(article_url, headline=None, published_date=None, body=None):
+def save_news_to_db(article_url, headline=None, published_date=None, body=None):  # save url only for corpus
     article = Article(headline=headline, published_date=published_date, body=body, url=article_url)
     db.session.add(article)
     db.session.commit()
