@@ -71,7 +71,7 @@ def process_article(article_url):
     link_cluster_in_db(article_id, cluster_id)
 
 
-def guardian_scraper():
+def theguardian_scraper():
 
     headers = {'User-Agent': ua.random}
     response = requests.get('https://www.theguardian.com/uk', headers=headers).text

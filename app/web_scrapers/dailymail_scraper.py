@@ -10,7 +10,6 @@ import random
 import time
 
 ua = UserAgent()
-base_url = 'https://www.dailymail.co.uk'
 
 
 def format_date(date_text):
@@ -74,7 +73,7 @@ def process_article(article_url):
 def dailymail_scraper():
 
     headers = {'User-Agent': ua.random}
-    response = requests.get(base_url, headers=headers).text
+    response = requests.get('https://www.dailymail.co.uk', headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
 
     articles = soup.find_all('h2', class_='linkro-darkred')
@@ -82,6 +81,6 @@ def dailymail_scraper():
     for article in articles:
         article_url = article.a["href"]
         if not article_url.startswith('http'):
-            article_url = base_url + article_url
+            article_url = 'https://www.dailymail.co.uk' + article_url
 
         process_article(article_url)

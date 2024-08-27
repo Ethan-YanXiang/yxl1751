@@ -10,7 +10,6 @@ import random
 import time
 
 ua = UserAgent()
-base_url = 'https://www.mirror.co.uk'
 
 
 def format_date(date_text):
@@ -73,7 +72,7 @@ def process_article(article_url):
 def dailymirror_scraper():
 
     headers = {'User-Agent': ua.random}
-    response = requests.get(base_url, headers=headers).text
+    response = requests.get('https://www.mirror.co.uk', headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
 
     articles = soup.find_all('article', class_='story')
