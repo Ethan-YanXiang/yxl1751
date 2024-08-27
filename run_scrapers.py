@@ -3,6 +3,7 @@ from app import db
 from app.feature_engineering.tfidf_vectorizer import train_and_save_tfidf_vectorizer
 from app.web_scrapers.dailymail_scraper import dailymail_scraper
 from app.web_scrapers.guardian_scraper import guardian_scraper
+from app.web_scrapers.dailymirror_scraper import dailymirror_scraper
 
 
 def main():
@@ -12,6 +13,7 @@ def main():
 
         dailymail_scraper()
         guardian_scraper()
+        dailymirror_scraper()
 
 
 if __name__ == '__main__':
