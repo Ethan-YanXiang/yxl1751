@@ -12,9 +12,9 @@ def get_clusters_from_db():
     return clusters
 
 
-def save_news_to_db(article_url, headline=None, published_date=None, body=None):  # save url only for corpus
+def save_news_to_db(article_url, headline=None, formatted_date=None, body=None):  # save url only for corpus
     try:
-        article = Article(headline=headline, published_date=published_date, body=body, url=article_url)
+        article = Article(headline=headline, published_date=formatted_date, body=body, url=article_url)
         print(article)
         db.session.add(article)
         db.session.commit()

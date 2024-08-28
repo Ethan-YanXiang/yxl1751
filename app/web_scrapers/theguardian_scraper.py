@@ -14,8 +14,8 @@ ua = UserAgent()
 
 def format_date(date_text):
     parsed_date = datetime.strptime(date_text, '%a %d %b %Y %H.%M %Z')
-    published_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
-    return published_date
+    formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted_date
 
 
 
@@ -32,11 +32,11 @@ def fetch_article_data(article_url):
 
     try:
         date_text = soup.find('span', class_='dcr-u0h1qy').text.strip()
-        published_date = format_date(date_text)
+        formatted_date = format_date(date_text)
     except AttributeError:
         try:
             date_text = soup.find('div', class_='dcr-1pexjb9').text.strip()
-            published_date = format_date(date_text)
+            formatted_date = format_date(date_text)
         except AttributeError:
             return None
 
@@ -48,7 +48,7 @@ def fetch_article_data(article_url):
     except AttributeError:
         return None
 
-    return headline, published_date, body
+    return headline, formatted_date, body
 
 
 def process_article(article_url):
@@ -56,10 +56,10 @@ def process_article(article_url):
         article_data = fetch_article_data(article_url)
 
         if article_data:
-            headline, published_date, body = article_data
+            headline, formatted_date, body = article_data
             # save_news_to_db(article_url)
             # save_corpus(clean_text(body))
-            article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
+            article_id = save_news_to_db(article_url, headline, formatted_date, body)  # when corpus
             print(f'Added {article_id} article to db: {headline}')
             tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
             cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)

@@ -33,8 +33,16 @@ def fetch_article_data(article_url):
         return None
 
     try:
-        date_text = soup.find('span', class_='time-container').text.strip()
-        published_date = format_date(date_text)
+        soup_ul_li = soup.find('ul', class_='time-info').find_all('li')
+        formatted_date = None
+        for i in soup_ul_li:
+            date_text = i.text.strip()
+            if 'Updated' in date_text:
+                formatted_date = format_date(date_text.replace('Updated', '').strip())
+                print(f'updated date: {formatted_date}')
+        if not formatted_date:
+            formatted_date = format_date(soup_ul_li[0].text.strip())
+            print(f'original date: {formatted_date}')
     except AttributeError:
         return None
 
@@ -46,7 +54,7 @@ def fetch_article_data(article_url):
     except AttributeError:
         return None
 
-    return headline, published_date, body
+    return headline, formatted_date, body
 
 
 def process_article(article_url):
@@ -54,10 +62,10 @@ def process_article(article_url):
         article_data = fetch_article_data(article_url)
 
         if article_data:
-            headline, published_date, body = article_data
+            headline, formatted_date, body = article_data
             # save_news_to_db(article_url)
             # save_corpus(clean_text(body))
-            article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
+            article_id = save_news_to_db(article_url, headline, formatted_date, body)  # when corpus
             print(f'added {article_id} article to db: {headline}')
             tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
             cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
