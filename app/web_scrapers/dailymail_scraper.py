@@ -40,8 +40,7 @@ def fetch_article_data(article_url):
         return None
 
     try:
-        maincontent = soup.find('div', itemprop='articleBody')
-        paragraphs = maincontent.find_all('p', class_='mol-para-with-font')
+        paragraphs = soup.find('div', itemprop='articleBody').find_all('p', class_='mol-para-with-font')
         body = ' '.join(p.text.strip() for p in paragraphs)
         if len(body) == 0:
             return None

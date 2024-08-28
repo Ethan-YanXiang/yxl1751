@@ -6,7 +6,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     headline = db.Column(db.String, nullable=False)  # True when corpus
     published_date = db.Column(db.String, nullable=False)  # True when corpus
-    body = db.Column(db.Text, nullable=False)  # True when corpus
+    body = db.Column(db.Text, nullable=True)  # True when corpus
     url = db.Column(db.String, nullable=False, unique=True)
     cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
