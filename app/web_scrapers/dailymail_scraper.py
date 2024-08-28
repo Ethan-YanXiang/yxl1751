@@ -28,8 +28,7 @@ def fetch_article_data(article_url):
     soup = BeautifulSoup(response, 'lxml')
 
     try:
-        headline = soup.h1.text.strip()
-        headline = headline.replace('EXCLUSIVE', '').strip()
+        headline = soup.h1.text.replace('EXCLUSIVE', '').strip()
     except AttributeError:
         return None
 
@@ -41,8 +40,9 @@ def fetch_article_data(article_url):
 
     try:
         paragraphs = soup.find('div', itemprop='articleBody').find_all('p', class_='mol-para-with-font')
-        body = ' '.join(p.text.strip() for p in paragraphs)
-        if len(body) == 0:
+        body = ' '.join(p.text.strip() for p in paragraphs).strip()
+        if not body:
+            print(f'failed to parse article {article_url}')
             return None
     except AttributeError:
         return None
@@ -51,22 +51,22 @@ def fetch_article_data(article_url):
 
 
 def process_article(article_url):
-    if news_already_in_db(article_url):
-        print(f'already in db: {article_url}')
-        return
-    article_data = fetch_article_data(article_url)
-    if article_data is None:
-        print(f'Failed to fetch all article data from: {article_url}')
-        return
+    if not news_already_in_db(article_url):
+        article_data = fetch_article_data(article_url)
 
-    headline, published_date, body = article_data
-    # save_news_to_db(article_url)
-    # save_corpus(clean_text(body))
-    article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
-    print(f'added {article_id} article to db: {headline}')
-    tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
-    cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
-    link_cluster_in_db(article_id, cluster_id)
+        if article_data:
+            headline, published_date, body = article_data
+            # save_news_to_db(article_url)
+            # save_corpus(clean_text(body))
+            article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
+            print(f'added {article_id} article to db: {headline}')
+            tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
+            cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+            link_cluster_in_db(article_id, cluster_id)
+        else:
+            print(f'Failed to fetch all article data from: {article_url}')
+    else:
+        print(f'already in db: {article_url}')
 
 
 def dailymail_scraper():

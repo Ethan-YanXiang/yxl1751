@@ -39,10 +39,9 @@ def fetch_article_data(article_url):
         return None
 
     try:
-        maincontent = soup.find('div', itemprop='articleBody')
-        paragraphs = maincontent.find_all('p')
-        body = ' '.join(p.text.strip() for p in paragraphs)
-        if len(body) == 0:
+        paragraphs = soup.find('div', itemprop='articleBody').find_all('p')
+        body = ' '.join(p.text.strip() for p in paragraphs).strip()
+        if not body:
             return None
     except AttributeError:
         return None
@@ -51,22 +50,22 @@ def fetch_article_data(article_url):
 
 
 def process_article(article_url):
-    if news_already_in_db(article_url):
-        print(f'already in db: {article_url}')
-        return
-    article_data = fetch_article_data(article_url)
-    if article_data is None:
-        print(f'Failed to fetch all article data from: {article_url}')
-        return
+    if not news_already_in_db(article_url):
+        article_data = fetch_article_data(article_url)
 
-    headline, published_date, body = article_data
-    # save_news_to_db(article_url)
-    # save_corpus(clean_text(body))
-    article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
-    print(f'added {article_id} article to db: {headline}')
-    tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
-    cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
-    link_cluster_in_db(article_id, cluster_id)
+        if article_data:
+            headline, published_date, body = article_data
+            # save_news_to_db(article_url)
+            # save_corpus(clean_text(body))
+            article_id = save_news_to_db(article_url, headline, published_date, body)  # when corpus
+            print(f'added {article_id} article to db: {headline}')
+            tfidf_matrix, feature_names = body_to_vectors(clean_text(body))
+            cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+            link_cluster_in_db(article_id, cluster_id)
+        else:
+            print(f'Failed to fetch all article data from: {article_url}')
+    else:
+        print(f'already in db: {article_url}')
 
 
 def dailymirror_scraper():
@@ -79,6 +78,6 @@ def dailymirror_scraper():
 
     for article in articles:
         a_tag = article.find('a')
-        if a_tag and 'href' in a_tag.attrs:
-            article_url = a_tag['href']
+        if a_tag and "href" in a_tag.attrs:
+            article_url = a_tag["href"]
             process_article(article_url)
