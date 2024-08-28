@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 def news_already_in_db(article_url):
-    return db.session.query(Article.url).filter_by(url=article_url).first() is not None
+    return Article.query.filter_by(url=article_url).first()
 
 
 def get_clusters_from_db():

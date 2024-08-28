@@ -1,5 +1,4 @@
-from app import app
-from app import db
+from app import app, db
 from app.feature_engineering.tfidf_vectorizer import train_and_save_tfidf_vectorizer
 from app.web_scrapers.dailymail_scraper import dailymail_scraper
 from app.web_scrapers.theguardian_scraper import theguardian_scraper

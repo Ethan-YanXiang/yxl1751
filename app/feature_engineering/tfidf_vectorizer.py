@@ -29,7 +29,13 @@ def train_and_save_tfidf_vectorizer():
                 tfidf_vectorizer = pickle.load(f)
                 tfidf_vectorizer.fit(corpus)
         else:
-            tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_df=0.95, min_df=0.01, ngram_range=(1, 2), max_features=10000, norm='l2', use_idf=True)
+            tfidf_vectorizer = TfidfVectorizer(stop_words='english',
+                                               max_df=0.95,
+                                               min_df=0.01,
+                                               ngram_range=(1, 2),
+                                               max_features=10000,
+                                               norm='l2',
+                                               use_idf=True)
             tfidf_vectorizer.fit(corpus)
         with open(vectorizer_file, 'wb') as w:
             pickle.dump(tfidf_vectorizer, w)

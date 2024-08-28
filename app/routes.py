@@ -1,4 +1,4 @@
-from app import app
+from app import app, db
 # 從 py檔(模組) 調用 實例
 from app.forms import LoginForm, RegistrationForm
 # 從 包.py檔(模組) 調用 類
