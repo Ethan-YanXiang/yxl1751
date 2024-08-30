@@ -56,13 +56,13 @@
                         </td>
                         <td>
                             {% if news.url.startswith('https://www.dailymail.co.uk') %}
-                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Dailymail</a>
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Daily mail</a>
                             {% elif news.url.startswith('https://www.mirror.co.uk') %}
-                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Dailymirror</a>
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Daily mirror</a>
                             {% elif news.url.startswith('https://www.theguardian.com') %}
-                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Theguardian</a>
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">The guardian</a>
                             {% elif news.url.startswith('https://www.thesun.co.uk') %}
-                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Thesun</a>
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">The sun</a>
                             {% else %} Other
                             {% endif %}
                         </td>
