@@ -8,7 +8,7 @@ class Article(db.Model):
     published_date = db.Column(db.String, nullable=False)  # True when corpus
     body = db.Column(db.Text, nullable=False)  # True when corpus
     url = db.Column(db.String, unique=True,  nullable=False, index=True)
-    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'), nullable=True)
+    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'), nullable=True, index=True)
     # cluster_id corresponds to articles attrs, for each body can have one and only "one" cluster_id
 
     def __repr__(self):

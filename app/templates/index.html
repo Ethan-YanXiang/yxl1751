@@ -1,7 +1,77 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>
-        Hello!
-    </h1>
-{% endblock content %}
+    <table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Total Topics</th>
+        <th scope="col">Total News</th>
+        <th scope="col">Hot Topics</th>
+        <th scope="col">Hot News</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="col">{{ total_clusters }}</th>
+        <th scope="col">{{ total_articles }}</th>
+        <th scope="col">{{ hot_topics }}</th>
+        <th scope="col">{{ hot_news }}</th>
+    </tr>
+    </tbody>
+    </table>
+
+    <form action="{{ url_for('home_func') }}" method="get">
+        <label for="sort">Sort by Article Count:</label>
+        <label>
+            <select name="sort" onchange="this.form.submit()">
+                  <option value="desc" {% if request.args.get('sort') == 'desc' %}selected{% endif %}>Descending</option>
+                  <option value="asc" {% if request.args.get('sort') == 'asc' %}selected{% endif %}>Ascending</option>
+            </select>
+        </label>
+    </form><br>
+
+
+
+    {% for topic in topics_with_news %}
+        <div class="topic">
+            <h3 class="text-primary">Summary: {{ topic.summary }}</h3>
+            <h3>Keyword: {{ topic.topic.keywords }} (News Count: {{ topic.news_count }})</h3>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="col-md-8">Title</th>
+                    <th class="col-md-2">Source</th>
+                    <th class="col-md-4">Publish Date</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for news in topic.news_list %}
+                    <tr>
+                        <td>
+                    <h5>
+                        <a href="{{ url_for('show_article', article_id=news.id) }}" style="text-decoration:none; color: inherit;">{{ news.headline }}</a>
+                    </h5>
+                        </td>
+                        <td>
+                            {% if news.url.startswith('https://www.dailymail.co.uk') %}
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Dailymail</a>
+                            {% elif news.url.startswith('https://www.mirror.co.uk') %}
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Dailymirror</a>
+                            {% elif news.url.startswith('https://www.theguardian.com') %}
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Theguardian</a>
+                            {% elif news.url.startswith('https://www.thesun.co.uk') %}
+                                <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">Thesun</a>
+                            {% else %} Other
+                            {% endif %}
+                        </td>
+                        <td>{{ news.published_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
+
+{% endblock %}
