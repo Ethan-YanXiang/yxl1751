@@ -39,10 +39,8 @@ def fetch_article_data(article_url):
             date_text = i.text.strip()
             if 'Updated' in date_text:
                 formatted_date = format_date(date_text.replace('Updated:', '').strip())
-                print(f'updated date: {formatted_date}')
         if not formatted_date:
             formatted_date = format_date(soup_ul_span[0].text.replace('Published:', '').strip())
-            print(f'original date: {formatted_date}')
     except AttributeError:
         return None
 
