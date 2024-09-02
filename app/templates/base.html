@@ -70,10 +70,16 @@
         {% endwith %}
 
         <div class="row">
-            <div class="col">
+            <div class="col-sm-8">
                 {% block content %}{% endblock content %}
             </div>
+            <div class="col-sm-4">
+                <div class="content-section">
+                    {% block sidebar %}{% endblock sidebar %}
+                </div>
+            </div>
         </div>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

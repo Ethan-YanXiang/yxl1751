@@ -14,10 +14,10 @@ def home_func():
     total_articles = Article.query.count()
 
     subquery = db.session.query(Article.cluster_id, db.func.count(Article.id).label('count')).group_by(Article.cluster_id).subquery()
-    hot_topics = db.session.query(subquery).filter(subquery.c.count >= 2).count()
+    total_hot_topics = db.session.query(subquery).filter(subquery.c.count >= 2).count()
 
     hot_topics_ids = db.session.query(Article.cluster_id).join(Cluster).group_by(Article.cluster_id).having(db.func.count(Article.id) >= 2).subquery()
-    hot_news = db.session.query(Article).join(hot_topics_ids, Article.cluster_id == hot_topics_ids.c.cluster_id).count()
+    total_hot_news = db.session.query(Article).join(hot_topics_ids, Article.cluster_id == hot_topics_ids.c.cluster_id).count()
 
     if sort_order == 'desc':
         clusters_with_multiple_articles = Cluster.query \
@@ -35,20 +35,19 @@ def home_func():
             .all()
 
     topics_with_news = []
-    for topic in clusters_with_multiple_articles:
-        news_list = Article.query.filter_by(cluster_id=topic.id).order_by(Article.published_date.desc()).all()
+    for hot_topic in clusters_with_multiple_articles:
+        hot_news_list = Article.query.filter_by(cluster_id=hot_topic.id).order_by(Article.published_date.desc()).all()
 
-        earliest_news = min(news_list, key=lambda news: news.published_date)
-        summary = earliest_news.headline
-        topics_with_news.append({'topic': topic, 'news_list': news_list, 'news_count': len(news_list), 'summary': summary})
+        topics_with_news.append({'hot_topic': hot_topic, 'hot_news_list': hot_news_list, 'news_count': len(hot_news_list)})
 
-    return render_template('index.html', total_clusters=total_clusters, total_articles=total_articles, hot_topics=hot_topics, hot_news=hot_news, topics_with_news=topics_with_news)
+    return render_template('index.html', total_clusters=total_clusters, total_articles=total_articles, total_hot_topics=total_hot_topics, total_hot_news=total_hot_news, topics_with_news=topics_with_news)
 
 
 @app.route('/article/<int:article_id>')
 def show_article(article_id):
     article = Article.query.get(article_id)
     summary = llama3_summary(article.url)
+    # sentiment = llama3_sentiment(article.url)
     return render_template('article.html', article=article, summary=summary, title=article.headline)
 
 
@@ -84,27 +83,3 @@ def register_func():
         flash(f'Registration for {form.username.data} received', 'success')
         return redirect(url_for('home_func'))
     return render_template('registration.html', title='Register', form=form)
-
-
-@app.route('/get_summary', methods=['GET', 'POST'])
-def get_summary_func():
-    news_url = request.form['news_url']
-    summary = llama3_summary(news_url)
-    return summary
-
-
-@app.route('/get_sentiment', methods=['GET', 'POST'])
-def get_sentiment_func():
-    news_url = request.form['news_url']
-    sentiment = llama3_sentiment(news_url)
-    return sentiment
-
-
-@app.route('/get_topic_summary', methods=['GET', 'POST'])
-def get_topic_summary_func():
-    topic_id = request.form.get('topic_id', type=int)
-    news_list = Article.query.filter_by(cluster_id=topic_id).order_by(Article.published_date.desc()).all()
-    news_urls = [news.url for news in news_list]
-    news_urls = ', '.join(news_urls)
-    summary = llama3_summary(news_urls)
-    return summary

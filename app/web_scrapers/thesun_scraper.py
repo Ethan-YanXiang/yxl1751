@@ -15,7 +15,7 @@ ua = UserAgent()
 def format_date(date_text):
     try:
         parsed_date = datetime.strptime(date_text, '%H:%M, %d %b %Y')
-        formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+        formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M')
         return formatted_date
     except ValueError:
         return None

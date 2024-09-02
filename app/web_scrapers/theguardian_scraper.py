@@ -14,7 +14,7 @@ ua = UserAgent()
 
 def format_date(date_text):
     parsed_date = datetime.strptime(date_text, '%a %d %b %Y %H.%M %Z')
-    formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M')
     return formatted_date
 
 
