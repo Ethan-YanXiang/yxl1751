@@ -5,7 +5,7 @@ def llama3_summary(url):
     model = 'llama3.1'
     llm = Ollama(model=model)
 
-    prompt = f'Please summarize the following news article in a concise summary: {url}'
+    prompt = f'Summarize the following news article: {url}'
     response = llm.invoke(prompt)  # summa
     return response
 

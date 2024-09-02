@@ -1,12 +1,15 @@
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import Article, Cluster
+from app.models import Article, Cluster, User
 from app.llama3.Ollama import llama3_summary, llama3_sentiment
 from flask import render_template, redirect, url_for, flash, request
+from flask_login import current_user, login_user, logout_user, login_required
+from urllib.parse import urlsplit
 
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def home_func():
     sort_order = request.args.get('sort', 'desc')
 
@@ -44,42 +47,58 @@ def home_func():
 
 
 @app.route('/article/<int:article_id>')
-def show_article(article_id):
+@login_required
+def article_func(article_id):
     article = Article.query.get(article_id)
     summary = llama3_summary(article.url)
     # sentiment = llama3_sentiment(article.url)
     return render_template('article.html', article=article, summary=summary, title=article.headline)
 
 
-@app.route('/login', methods=['GET', 'POST'])  # POST: safely send sensitive data to a server page
-def login_func():
-    form = LoginForm()  # 呼叫 LoginForm() 類，初始化一個 form object
-
-    userdata = form.username.data
-    password_data = form.password.data
-    try:
-        if userdata.lower() == 'admin':
-            flash(f'Username can\'t be {form.username.data}', 'danger')
-        elif not userdata.isalpha() and userdata:
-            flash(f'Username must be alphanumeric', 'danger')
-        elif not password_data.isdigit() and password_data:
-            flash(f'Password must be digit', 'danger')
-        elif len(password_data) < 4:
-            flash(f'Password must be at least 4 characters', 'danger')
-        elif form.validate_on_submit():  # all fields validate correctly, request via POST, return True.
-            flash(f'Login for {form.username.data}', 'success')  # .data = data typed in
-            return redirect(url_for('home_func'))  # once login, where should it go (POST)
-    except AttributeError:
-        pass
-
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home_func'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        flash(f'Login for {form.username.data}', 'success')
+        next_page = request.args.get('next')
+        if not next_page or urlsplit(next_page).netloc != '':
+            next_page = url_for('home_func')
+        return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
-    # fetching the page first time (GET)
+
+
+@app.route('/logout')
+def logout_func():
+    logout_user()
+    return redirect(url_for('home_func'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_func():
     form = RegistrationForm()
     if form.validate_on_submit():
+        user_exists = User.query.filter_by(username=form.username.data).first()
+        email_exists = User.query.filter_by(email=form.email.data).first()
+        if user_exists:
+            flash('Username already exists.')
+            return render_template('registration.html', title='Register', form=form)
+        if email_exists:
+            flash(' Email already exists.')
+            return render_template('registration.html', title='Register', form=form)
+
+        new_user = User(username=form.username.data, email=form.email.data)
+        new_user.set_password(form.password.data)
+
+        db.session.add(new_user)
+        db.session.commit()
+
         flash(f'Registration for {form.username.data} received', 'success')
         return redirect(url_for('home_func'))
     return render_template('registration.html', title='Register', form=form)

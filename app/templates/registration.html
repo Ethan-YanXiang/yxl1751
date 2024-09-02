@@ -1,59 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form method="POST" action="{{ url_for('register_func') }}" novalidate>
+    <form method="POST" action="" novalidate>
 
         {{ form.hidden_tag() }}
-
-        <div>
-            {{ form.date.label }}<br/>
-            {{ form.date(size=30) }}<br/>
-            {% for error in form.date.errors %}
-                <span style="color: red;">
-                    {{ error }}
-                </span>
-            {% endfor %}<br/>
-        </div>
-
-        <div>
-            {{ form.height.label }}<br/>
-            {{ form.height(size=30) }}<br/>
-            {% for error in form.height.errors %}
-                <span style="color: red;">
-                    {{ error }}
-                </span>
-            {% endfor %}<br/>
-        </div>
-
-        <div>
-            {{ form.weight.label }}<br/>
-            {{ form.weight(size=30) }}<br/>
-            {% for error in form.weight.errors %}
-                <span style="color: red;">
-                    {{ error }}
-                </span>
-            {% endfor %}<br/>
-        </div>
-
-        <div>
-            {{ form.address.label }}<br/>
-            {{ form.address(size=30) }}<br/>
-            {% for error in form.address.errors %}
-                <span style="color: red;">
-                    {{ error }}
-                </span>
-            {% endfor %}<br/>
-        </div>
-
-        <div>
-            {{ form.number.label }}<br/>
-            {{ form.number(size=30) }}<br/>
-            {% for error in form.number.errors %}
-                <span style="color: red;">
-                    {{ error }}
-                </span>
-            {% endfor %}<br/>
-        </div>
 
         <div>
             {{ form.username.label }}<br/>

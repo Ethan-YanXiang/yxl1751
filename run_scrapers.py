@@ -11,6 +11,7 @@ def main():
         db.create_all()
         train_and_save_tfidf_vectorizer()  # when corpus
 
+# delete
         dailymail_scraper()
         dailymirror_scraper()
         theguardian_scraper()

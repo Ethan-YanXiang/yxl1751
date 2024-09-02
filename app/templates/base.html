@@ -11,7 +11,7 @@
         {% if title %}
         <title>{{ title }}</title>
         {% else %}
-        <title>標籤頁抬頭</title>
+        <title>Real-Time News Topic Detection and Classification System</title>
         {% endif %}
 
         <link rel="stylesheet"
@@ -31,7 +31,7 @@
         <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
             <div class="container-fluid">
 
-                <a class="navbar-brand mr-4" href="/">導航欄名稱</a>
+                <a class="navbar-brand mr-4" href="/">Home</a>
 
                 <button class="navbar-toggler"
                         type="button"
@@ -46,17 +46,29 @@
                 <div class="collapse navbar-collapse" id="navbarToggle">
                     {# Navbar Left Side (Margin End(right) auto fill with spaces) #}
                     <div class="navbar-nav me-auto">
-                        <a class="nav-item nav-link" href="{{ url_for('home_func') }}">Home</a>
                     </div>
                     {# Navbar Right Side #}
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link" href="{{ url_for('login_func') }}">Login</a>
-                        <a class="nav-item nav-link" href="{{ url_for('register_func') }}">Register</a>
+                        {% if current_user.is_authenticated %}
+                            <span class="nav-item nav-link">Welcome back {{ current_user.username }}</span>
+                            <a class="nav-item nav-link" href="{{ url_for('logout_func') }}">Logout {{ current_user.username }}</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="{{ url_for('register_func') }}">Register</a>
+                        {% endif %}
+                        <span class="nav-item nav-link" id="current-time"></span>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
+
+    <script>
+        function get_current_time() {
+            document.getElementById('current-time').textContent = new Date().toLocaleTimeString();
+        }
+        setInterval(get_current_time, 1000);
+        get_current_time();
+    </script>
 
     <main role="main" class="container">
         {% with messages = get_flashed_messages(with_categories=true) %} {# get messages list (with categories) #}
@@ -70,13 +82,8 @@
         {% endwith %}
 
         <div class="row">
-            <div class="col-sm-8">
+            <div>
                 {% block content %}{% endblock content %}
-            </div>
-            <div class="col-sm-4">
-                <div class="content-section">
-                    {% block sidebar %}{% endblock sidebar %}
-                </div>
             </div>
         </div>
 
