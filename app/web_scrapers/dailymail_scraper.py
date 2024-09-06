@@ -22,7 +22,7 @@ def format_date(date_text):
 
 
 def fetch_article_data(article_url):
-    time.sleep(random.uniform(0, 1))
+    time.sleep(random.uniform(0, 0.5))
     headers = {'User-Agent': ua.random}
     response = requests.get(article_url, headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
@@ -45,8 +45,8 @@ def fetch_article_data(article_url):
         return None
 
     try:
-        paragraphs = soup.find('div', itemprop='articleBody').find_all('p', class_='mol-para-with-font')
-        body = ' '.join(p.text.strip() for p in paragraphs).strip()
+        paragraphs = soup.find('div', itemprop='articleBody')
+        body = ' '.join(p.text.strip() for p in paragraphs.find_all('p', class_='mol-para-with-font')).strip()
         if not body:
             print(f'failed to parse article {article_url}')
             return None

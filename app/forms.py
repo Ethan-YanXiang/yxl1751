@@ -1,7 +1,6 @@
 # 從 包 調用 模組
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.fields import DateField
 from wtforms.validators import DataRequired, EqualTo, Email, Length, ValidationError
 from app.models import User
 

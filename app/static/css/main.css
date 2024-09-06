@@ -105,29 +105,3 @@ a.article-title:hover {
 .sort-form {
     margin-top: 20px;
 }
-
-
-.sidebar {
-    height: 100vh; /* Full-height */
-    width: 250px; /* Set the width of the sidebar */
-    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
-    z-index: 1; /* Stay on top */
-    top: 0; /* Stay at the top */
-    left: 0;
-    background-color: #111; /* Black */
-    overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 20px;
-}
-
-/* Sidebar links */
-.sidebar a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
-    display: block;
-}
-
-.sidebar a:hover {
-    color: #f1f1f1;
-}

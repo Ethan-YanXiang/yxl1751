@@ -1,6 +1,7 @@
 from app import db
 from app.models import Cluster, Article
 from sqlalchemy.exc import SQLAlchemyError
+from app.llama3.Ollama import llama3_sentiment
 
 
 def news_already_in_db(article_url):
@@ -14,7 +15,8 @@ def get_clusters_from_db():
 
 def save_news_to_db(article_url, headline=None, formatted_date=None, body=None):  # save url only for corpus
     try:
-        article = Article(headline=headline, published_date=formatted_date, body=body, url=article_url)
+        sentiment = llama3_sentiment(article_url)
+        article = Article(headline=headline, published_date=formatted_date, body=body, url=article_url, sentiment=sentiment)
         print(article)
         db.session.add(article)
         db.session.commit()

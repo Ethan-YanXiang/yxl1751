@@ -1,7 +1,7 @@
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import Article, Cluster, User
-from app.llama3.Ollama import llama3_summary, llama3_sentiment
+from app.llama3.Ollama import llama3_summary
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
@@ -51,7 +51,6 @@ def home_func():
 def article_func(article_id):
     article = Article.query.get(article_id)
     summary = llama3_summary(article.url)
-    # sentiment = llama3_sentiment(article.url)
     return render_template('article.html', article=article, summary=summary, title=article.headline)
 
 
