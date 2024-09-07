@@ -15,13 +15,12 @@ def get_clusters_from_db():
     return clusters
 
 
-def save_news_to_db(article_url, headline=None, formatted_date=None, body=None, sentiment=None):  # save url only for corpus
+def save_news_to_db(article_url, headline=None, formatted_date=None, body=None, sentiment=None, cluster=None):  # save url only for corpus
     try:
-        article = Article(headline=headline, published_date=formatted_date, body=body, url=article_url, sentiment=sentiment)
+        article = Article(url=article_url, headline=headline, published_date=formatted_date, body=body, sentiment=sentiment, cluster=cluster)
         print(article)
         db.session.add(article)
         db.session.commit()
-        return article.id
     except SQLAlchemyError as e:
         print(f"Error saving article: {e}")
         db.session.rollback()
@@ -37,13 +36,11 @@ def save_cluster_to_db(cluster_center, keywords):
         print(cluster)
         db.session.add(cluster)
         db.session.commit()
-        return cluster.id
+        return cluster
     except SQLAlchemyError as e:
         print(f"Error saving cluster: {e}")
         db.session.rollback()
         return None
-    finally:
-        db.session.close()
 
 
 def update_cluster_in_db(cluster_id, new_cluster_center, keywords):
@@ -51,12 +48,7 @@ def update_cluster_in_db(cluster_id, new_cluster_center, keywords):
     cluster.cluster_center = ','.join(map(str, new_cluster_center))
     cluster.keywords = keywords
     db.session.commit()
-
-
-def link_cluster_in_db(article_id, cluster_id):
-    article = Article.query.get(article_id)
-    article.cluster_id = cluster_id
-    db.session.commit()
+    return cluster
 
 
 def get_keywords(tfidf_matrix, feature_names):
@@ -71,10 +63,9 @@ def recalculate_cluster_center(cluster_id):
     documents = (clean_text(article.body) for article in articles)
     tfidf_matrix, feature_names = body_to_vectors(documents)
     new_cluster_center = np.mean(tfidf_matrix.toarray(), axis=0).flatten()
-    print(f"cluster_id: {cluster_id}")
     cluster.cluster_center = ','.join(map(str, new_cluster_center))
     cluster.keywords = get_keywords(new_cluster_center, feature_names)
-    print(f'{cluster.keywords}')
+    print(f'cluster id: {cluster_id}\nrecalculate cluster center: {cluster.cluster_center}\nrecalculate keywords: {cluster.keywords}')
 
 
 def delete_old_news():
@@ -89,9 +80,8 @@ def delete_old_news():
     for cluster_id in affected_clusters:
         cluster = Cluster.query.get(cluster_id)
         if len(cluster.articles) == 0:
-            print(f"Deleting orphaned cluster {cluster.id}")
             db.session.delete(cluster)
-            db.session.commit()
+            print(f"Deleting orphaned cluster {cluster.id}")
         else:
             recalculate_cluster_center(cluster_id)
     db.session.commit()

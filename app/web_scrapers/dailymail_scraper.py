@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from app.database.db import news_already_in_db, save_news_to_db, link_cluster_in_db
+from app.database.db import news_already_in_db, save_news_to_db
 from app.feature_engineering import clean_text, body_to_vectors, save_corpus
 from app.llama3.Ollama import llama3_sentiment
 from app.machine_learning.single_pass_clustering import real_time_single_pass_clustering
@@ -64,11 +64,10 @@ def process_article(article_url):
             # save_news_to_db(article_url)
             # save_corpus(clean_text(body))
             sentiment = llama3_sentiment(article_url)  # when corpus
-            article_id = save_news_to_db(article_url, headline, formatted_date, body, sentiment)
-            print(f'added {article_id} article to db: {headline}')
             tfidf_matrix, feature_names = body_to_vectors([clean_text(body)])
-            cluster_id = real_time_single_pass_clustering(tfidf_matrix, feature_names)
-            link_cluster_in_db(article_id, cluster_id)
+            cluster = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+            save_news_to_db(article_url, headline, formatted_date, body, sentiment, cluster)
+            print(f'added article to db: {headline}')
         else:
             print(f'Failed to fetch all article data from: {article_url}')
     else:
