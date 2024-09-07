@@ -1,7 +1,7 @@
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import Article, Cluster, User
-from app.llama3.Ollama import llama3_summary
+from app.large_language_model.Ollama import llama3_summary
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
