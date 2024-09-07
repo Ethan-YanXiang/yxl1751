@@ -17,23 +17,23 @@ def home_func():
     total_articles = Article.query.count()
 
     subquery = db.session.query(Article.cluster_id, db.func.count(Article.id).label('count')).group_by(Article.cluster_id).subquery()
-    total_hot_topics = db.session.query(subquery).filter(subquery.c.count >= 2).count()
+    total_hot_topics = db.session.query(subquery).filter(subquery.c.count >= 3).count()
 
-    hot_topics_ids = db.session.query(Article.cluster_id).join(Cluster).group_by(Article.cluster_id).having(db.func.count(Article.id) >= 2).subquery()
+    hot_topics_ids = db.session.query(Article.cluster_id).join(Cluster).group_by(Article.cluster_id).having(db.func.count(Article.id) >= 3).subquery()
     total_hot_news = db.session.query(Article).join(hot_topics_ids, Article.cluster_id == hot_topics_ids.c.cluster_id).count()
 
     if sort_order == 'desc':
         clusters_with_multiple_articles = Cluster.query \
             .join(Article) \
             .group_by(Cluster.id) \
-            .having(db.func.count(Article.id) >= 2) \
+            .having(db.func.count(Article.id) >= 3) \
             .order_by(db.func.count(Article.id).desc()) \
             .all()
     else:
         clusters_with_multiple_articles = Cluster.query \
             .join(Article) \
             .group_by(Cluster.id) \
-            .having(db.func.count(Article.id) >= 2) \
+            .having(db.func.count(Article.id) >= 3) \
             .order_by(db.func.count(Article.id).asc()) \
             .all()
 

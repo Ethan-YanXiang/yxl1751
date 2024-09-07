@@ -1,7 +1,9 @@
+import numpy as np
 from app import db
 from app.models import Cluster, Article
+from app.feature_engineering import clean_text, body_to_vectors
 from sqlalchemy.exc import SQLAlchemyError
-from app.llama3.Ollama import llama3_sentiment
+from datetime import datetime, timedelta
 
 
 def news_already_in_db(article_url):
@@ -13,9 +15,8 @@ def get_clusters_from_db():
     return clusters
 
 
-def save_news_to_db(article_url, headline=None, formatted_date=None, body=None):  # save url only for corpus
+def save_news_to_db(article_url, headline=None, formatted_date=None, body=None, sentiment=None):  # save url only for corpus
     try:
-        sentiment = llama3_sentiment(article_url)
         article = Article(headline=headline, published_date=formatted_date, body=body, url=article_url, sentiment=sentiment)
         print(article)
         db.session.add(article)
@@ -45,10 +46,9 @@ def save_cluster_to_db(cluster_center, keywords):
         db.session.close()
 
 
-def update_cluster_in_db(cluster_id, cluster_center, keywords):
+def update_cluster_in_db(cluster_id, new_cluster_center, keywords):
     cluster = Cluster.query.get(cluster_id)
-    cluster_center = ','.join(map(str, cluster_center))
-    cluster.cluster_center = cluster_center
+    cluster.cluster_center = ','.join(map(str, new_cluster_center))
     cluster.keywords = keywords
     db.session.commit()
 
@@ -56,4 +56,42 @@ def update_cluster_in_db(cluster_id, cluster_center, keywords):
 def link_cluster_in_db(article_id, cluster_id):
     article = Article.query.get(article_id)
     article.cluster_id = cluster_id
+    db.session.commit()
+
+
+def get_keywords(tfidf_matrix, feature_names):
+    most_relevant_elements = np.argsort(-tfidf_matrix)[:5]
+    keywords = ' '.join(feature_names[i] for i in most_relevant_elements)
+    return keywords
+
+
+def recalculate_cluster_center(cluster_id):
+    cluster = Cluster.query.get(cluster_id)
+    articles = Article.query.filter_by(cluster_id=cluster.id).all()
+    documents = (clean_text(article.body) for article in articles)
+    tfidf_matrix, feature_names = body_to_vectors(documents)
+    new_cluster_center = np.mean(tfidf_matrix.toarray(), axis=0).flatten()
+    print(f"cluster_id: {cluster_id}")
+    cluster.cluster_center = ','.join(map(str, new_cluster_center))
+    cluster.keywords = get_keywords(new_cluster_center, feature_names)
+    print(f'{cluster.keywords}')
+
+
+def delete_old_news():
+    cutoff_date = datetime.now() - timedelta(days=1)
+
+    articles_to_delete = Article.query.filter(Article.published_date < cutoff_date).all()
+    affected_clusters = {article.cluster_id for article in articles_to_delete if article.cluster_id}
+
+    Article.query.filter(Article.published_date < cutoff_date).delete()
+    db.session.commit()
+
+    for cluster_id in affected_clusters:
+        cluster = Cluster.query.get(cluster_id)
+        if len(cluster.articles) == 0:
+            print(f"Deleting orphaned cluster {cluster.id}")
+            db.session.delete(cluster)
+            db.session.commit()
+        else:
+            recalculate_cluster_center(cluster_id)
     db.session.commit()

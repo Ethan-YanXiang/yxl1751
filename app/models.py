@@ -7,10 +7,10 @@ class Article(db.Model):
     __tablename__ = 'articles'
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False, index=True)
     headline = db.Column(db.String, nullable=False)  # True when corpus
-    published_date = db.Column(db.String, nullable=False)  # True when corpus
+    published_date = db.Column(db.DateTime, nullable=False, index=True)  # True when corpus
     body = db.Column(db.Text, nullable=False)  # True when corpus
     url = db.Column(db.String, unique=True,  nullable=False, index=True)
-    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'), nullable=True, index=True)
+    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id', ondelete='CASCADE'), nullable=True, index=True)
     sentiment = db.Column(db.String(10))
     # cluster_id corresponds to articles attrs, for each body can have one and only "one" cluster_id
 
@@ -24,7 +24,7 @@ class Cluster(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False, index=True)
     cluster_center = db.Column(db.Text, nullable=False, index=True)
     keywords = db.Column(db.String, nullable=False)
-    articles = db.relationship('Article', backref='cluster', lazy=True)  # virtual field
+    articles = db.relationship('Article', backref='cluster', lazy=True, cascade="all, delete-orphan")  # virtual field
     # represent relationship to Article, for each cluster_center can have "many" articles
     # backref='cluster': putting a virtual field 'cluster' in Article for Article to reference corresponding cluster
 

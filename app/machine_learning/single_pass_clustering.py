@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from app.database.db import save_cluster_to_db, update_cluster_in_db, get_clusters_from_db
+from app.database.db import save_cluster_to_db, update_cluster_in_db, get_clusters_from_db, get_keywords
 
 
 def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.425):
@@ -34,9 +34,3 @@ def real_time_single_pass_clustering(tfidf_matrix, feature_names, threshold=0.42
             update_cluster_in_db(cluster[0], new_cluster_center, keywords)
             print(f'update cluster {cluster[0]}\n')
             return cluster[0]
-
-
-def get_keywords(tfidf_matrix, feature_names):
-    most_relevant_elements = np.argsort(-tfidf_matrix)[:5]
-    keywords = ' '.join(feature_names[i] for i in most_relevant_elements)
-    return keywords

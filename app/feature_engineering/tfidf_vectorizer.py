@@ -4,8 +4,8 @@ from app import basedir
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 basedir = basedir
-vectorizer_file = os.path.join(basedir, 'data', 'tfidf_vectorizer.pkl')
 corpus_file = os.path.join(basedir, 'data', 'corpus.pkl')
+vectorizer_file = os.path.join(basedir, 'data', 'tfidf_vectorizer.pkl')
 
 
 def save_corpus(cleaned_body):
@@ -44,6 +44,6 @@ def train_and_save_tfidf_vectorizer():
 def body_to_vectors(cleaned_body):
     with open(vectorizer_file, 'rb') as file:
         tfidf_vectorizer = pickle.load(file)
-        tfidf_matrix = tfidf_vectorizer.transform([cleaned_body])
+        tfidf_matrix = tfidf_vectorizer.transform(cleaned_body)
         feature_names = tfidf_vectorizer.get_feature_names_out()
     return tfidf_matrix, feature_names
