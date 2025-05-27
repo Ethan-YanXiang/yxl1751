@@ -1,11 +1,15 @@
-
 body {
   background: #fafafa;
   color: #333333;
   margin-top: 5rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #444444;
 }
 
@@ -82,26 +86,30 @@ a.article-title:hover {
 
 
 .topic-header {
-    cursor: pointer;
-    background-color: #f8f9fa;
-    margin-top: 10px;
-    border: 1px solid #ddd;
-    border-radius: 0.25rem;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
 }
+
 .topic-header:hover {
-    background-color: #e9ecef;
+  background-color: #e9ecef;
 }
+
 .collapse.show {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
+
 .collapse.in {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
+
 .card-body {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 
 .sort-form {
-    margin-top: 20px;
+  margin-top: 20px;
 }

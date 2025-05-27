@@ -1,98 +1,104 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table class="table">
+<table class="table">
     <thead>
-    <tr>
-        <th scope="col">Total Topics</th>
-        <th scope="col">Total News</th>
-        <th scope="col">Hot Topics</th>
-        <th scope="col">Hot News</th>
-    </tr>
+        <tr>
+            <th scope="col">Total Topics</th>
+            <th scope="col">Total News</th>
+            <th scope="col">Hot Topics</th>
+            <th scope="col">Hot News</th>
+        </tr>
     </thead>
     <tbody>
-    <tr>
-        <th scope="col">{{ total_clusters }}</th>
-        <th scope="col">{{ total_articles }}</th>
-        <th scope="col">{{ total_hot_topics }}</th>
-        <th scope="col">{{ total_hot_news }}</th>
-    </tr>
+        <tr>
+            <th scope="col">{{ total_clusters }}</th>
+            <th scope="col">{{ total_articles }}</th>
+            <th scope="col">{{ total_hot_topics }}</th>
+            <th scope="col">{{ total_hot_news }}</th>
+        </tr>
     </tbody>
-    </table>
+</table>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <form action="{{ url_for('home_func') }}" method="get" class="sort-form">
-                    <div class="mb-3">
-                        <label for="sort" class="form-label">Sort by Article Count:</label>
-                        <select name="sort" id="sort" class="form-select" onchange="this.form.submit()">
-                            <option value="desc" {% if request.args.get('sort') == 'desc' %}selected{% endif %}>Descending</option>
-                            <option value="asc" {% if request.args.get('sort') == 'asc' %}selected{% endif %}>Ascending</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="{{ url_for('home_func') }}" method="get" class="sort-form">
+                <div class="mb-3">
+                    <label for="sort" class="form-label">Sort by Article Count:</label>
+                    <select name="sort" id="sort" class="form-select" onchange="this.form.submit()">
+                        <option value="desc" {% if request.args.get('sort')=='desc' %}selected{% endif %}>Descending
+                        </option>
+                        <option value="asc" {% if request.args.get('sort')=='asc' %}selected{% endif %}>Ascending
+                        </option>
+                    </select>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    {% for hot_topic in topics_with_news %}
-        <div class="topic">
-            <div class="topic-header p-2" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
-                <h5 class="mb-0">Keywords: {{ hot_topic.hot_topic.keywords }} ({{ hot_topic.news_count }} Articles)</h5>
-            </div>
+{% for hot_topic in topics_with_news %}
+<div class="topic">
+    <div class="topic-header p-2" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}"
+        aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+        <h5 class="mb-0">Keywords: {{ hot_topic.hot_topic.keywords }} ({{ hot_topic.news_count }} Articles)</h5>
+    </div>
 
-            <div class="collapse" id="collapse{{ loop.index }}">
-                <div class="card card-body">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th class="col-md-4">Headlines</th>
-                            <th class="col-md-1">Sentiment Analysis</th>
-                            <th class="col-md-1">Sources</th>
-                            <th class="col-md-1">Latest Updated</th>
-                        </tr>
-                        </thead>
+    <div class="collapse" id="collapse{{ loop.index }}">
+        <div class="card card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-md-4">Headlines</th>
+                        <th class="col-md-1">Sentiment Analysis</th>
+                        <th class="col-md-1">Sources</th>
+                        <th class="col-md-1">Latest Updated</th>
+                    </tr>
+                </thead>
 
-                        <tbody>
-                        {% for news in hot_topic.hot_news_list %}
-                            <tr>
-                                <td>
-                                    <h5>
-                                        <a href="{{ url_for('article_func', article_id=news.id) }}" style="text-decoration:none; color: inherit;">{{ news.headline }}</a>
-                                    </h5>
-                                </td>
+                <tbody>
+                    {% for news in hot_topic.hot_news_list %}
+                    <tr>
+                        <td>
+                            <h5>
+                                <a href="{{ url_for('article_func', article_id=news.id) }}"
+                                    style="text-decoration:none; color: inherit;">{{ news.headline }}</a>
+                            </h5>
+                        </td>
 
-                                <td>
-                                    {% if 'positive' in news.sentiment %}
-                                        <i class="fa fa-smile-o" style="color: green;"> Positive</i>
-                                    {% elif 'negative' in news.sentiment %}
-                                        <i class="fa fa-frown-o" style="color: red;"> Negative</i>
-                                    {% elif 'neutral' in news.sentiment %}
-                                        <i class="fa fa-meh-o" style="color: gray;"> Neutral</i>
-                                    {% else %}
-                                        <i class="fa fa-exclamation-circle" style="color: orange;" title="Sentiment analysis failed"> Unknown</i>
-                                    {% endif %}
-                                </td>
+                        <td>
+                            {% if 'positive' in news.sentiment %}
+                            <i class="fa fa-smile-o" style="color: green;"> Positive</i>
+                            {% elif 'negative' in news.sentiment %}
+                            <i class="fa fa-frown-o" style="color: red;"> Negative</i>
+                            {% elif 'neutral' in news.sentiment %}
+                            <i class="fa fa-meh-o" style="color: gray;"> Neutral</i>
+                            {% else %}
+                            <i class="fa fa-exclamation-circle" style="color: orange;"
+                                title="Sentiment analysis failed"> Unknown</i>
+                            {% endif %}
+                        </td>
 
-                                <td>
-                                    <a class="news-headline" href="{{ news.url }}" target="_blank" title="Click to open: {{ news.url }}" data-url="{{ news.url }}">
-                                        {% if news.url.startswith('https://www.dailymail.co.uk') %}Daily Mail
-                                        {% elif news.url.startswith('https://www.mirror.co.uk') %}Daily Mirror
-                                        {% elif news.url.startswith('https://www.theguardian.com') %}The Guardian
-                                        {% elif news.url.startswith('https://www.thesun.co.uk') %}The Sun
-                                        {% else %}Other
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>{{ news.published_date }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        <td>
+                            <a class="news-headline" href="{{ news.url }}" target="_blank"
+                                title="Click to open: {{ news.url }}" data-url="{{ news.url }}">
+                                {% if news.url.startswith('https://www.dailymail.co.uk') %}Daily Mail
+                                {% elif news.url.startswith('https://www.mirror.co.uk') %}Daily Mirror
+                                {% elif news.url.startswith('https://www.theguardian.com') %}The Guardian
+                                {% elif news.url.startswith('https://www.thesun.co.uk') %}The Sun
+                                {% else %}Other
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td>{{ news.published_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    {% endfor %}
+    </div>
+</div>
+{% endfor %}
 
 {% endblock content %}

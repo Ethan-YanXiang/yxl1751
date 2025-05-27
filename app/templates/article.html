@@ -1,9 +1,7 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h2>{{ article.headline }}</h2>
-    <p><strong>Published Date:</strong> {{ article.published_date }}</p>
-    <h3>Summary</h3>
-    <p>{{ summary }}</p>
-    <p>{{ article.body }}</p>
+{% extends "base.html" %} {% block content %}
+<h2>{{ article.headline }}</h2>
+<p><strong>Published Date:</strong> {{ article.published_date }}</p>
+<h3>Summary</h3>
+<p>{{ summary }}</p>
+<p>{{ article.body }}</p>
 {% endblock %}
