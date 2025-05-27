@@ -14,43 +14,58 @@ ua = UserAgent()
 
 def format_date(date_text):
     try:
-        published_date = datetime.strptime(date_text, '%H:%M, %d %B %Y')
+        published_date = datetime.strptime(
+            date_text.replace("BST, ", "").replace("BST ", ""), "%H:%M %d %B %Y"
+        )
         return published_date
     except ValueError:
         return None
 
 
+def get_date(soup_date):
+    date_text = [_.text.strip() for _ in soup_date]
+    for date in date_text:
+        if "Updated" in date:
+            return format_date(date.replace("Updated:", "").strip())
+    return format_date(date_text[-1].replace("Published:", "").strip())
+
+
 def fetch_article_data(article_url):
     time.sleep(random.uniform(0, 0.5))
-    headers = {'User-Agent': ua.random}
+    headers = {"User-Agent": ua.random}
     response = requests.get(article_url, headers=headers).text
-    soup = BeautifulSoup(response, 'lxml')
+    soup = BeautifulSoup(response, "lxml")
 
     try:
-        headline = soup.h1.text.replace('EXCLUSIVE', '').replace('BREAKING NEWS', '').strip()
+        headline = (
+            soup.h1.text.replace("EXCLUSIVE", "").replace("BREAKING NEWS", "").strip()
+        )
     except AttributeError:
         return None
 
     try:
-        soup_ul_span = soup.find('p', class_='byline-section').find_all('span', class_='article-timestamp')
-        formatted_date = None
-        for i in soup_ul_span:
-            date_text = i.text.strip()
-            if 'Updated' in date_text:
-                formatted_date = format_date(date_text.replace('Updated:', '').strip())
-        if not formatted_date:
-            formatted_date = format_date(soup_ul_span[0].text.replace('Published:', '').strip())
+        soup_p_span = soup.find("p", class_="byline-section").find_all(
+            "span", class_="article-timestamp"
+        )
+        formatted_date = get_date(soup_p_span)
     except AttributeError:
-        return None
-
-    try:
-        paragraphs = soup.find('div', itemprop='articleBody')
-        body = ' '.join(p.text.strip() for p in paragraphs.find_all('p', class_='mol-para-with-font')).strip()
-        if not body:
-            print(f'failed to parse article {article_url}')
+        try:
+            soup_p_time = soup.find("p", class_="byline").find_all("time")
+            formatted_date = get_date(soup_p_time)
+        except AttributeError:
             return None
+
+    try:
+        paragraphs = soup.find("div", itemprop="articleBody").find_all(
+            "p", class_="mol-para-with-font"
+        )
+        body = " ".join(p.text.strip() for p in paragraphs).strip()
     except AttributeError:
-        return None
+        try:
+            paragraphs = soup.find_all("p", class_="mol-para-with-font")
+            body = " ".join(p.text.strip() for p in paragraphs).strip()
+        except AttributeError:
+            return None
 
     return headline, formatted_date, body
 
@@ -66,25 +81,27 @@ def process_article(article_url):
             sentiment = llama3_sentiment(article_url)  # when corpus
             tfidf_matrix, feature_names = body_to_vectors([clean_text(body)])
             cluster = real_time_single_pass_clustering(tfidf_matrix, feature_names)
-            save_news_to_db(article_url, headline, formatted_date, body, sentiment, cluster)
-            print(f'added article to db: {headline}')
+            save_news_to_db(
+                article_url, headline, formatted_date, body, sentiment, cluster
+            )
+            print(f"Added article to db: {headline}")
         else:
-            print(f'Failed to fetch all article data from: {article_url}')
+            print(f"Failed to fetch all article data from: {article_url}")
     else:
-        print(f'already in db: {article_url}')
+        print(f"already in db: {article_url}")
 
 
 def dailymail_scraper():
 
-    headers = {'User-Agent': ua.random}
-    response = requests.get('https://www.dailymail.co.uk', headers=headers).text
-    soup = BeautifulSoup(response, 'lxml')
+    headers = {"User-Agent": ua.random}
+    response = requests.get("https://www.dailymail.co.uk", headers=headers).text
+    soup = BeautifulSoup(response, "lxml").find("div", itemprop="mainEntity")
 
-    articles = soup.find_all('h2', class_='linkro-darkred')
+    articles = soup.find_all("div", itemprop="itemListElement")
 
     for article in articles:
         article_url = article.a["href"]
-        if not article_url.startswith('http'):
-            article_url = 'https://www.dailymail.co.uk' + article_url
+        if not article_url.startswith("http"):
+            article_url = "https://www.dailymail.co.uk" + article_url
 
         process_article(article_url)
