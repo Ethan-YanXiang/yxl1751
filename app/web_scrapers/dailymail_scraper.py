@@ -1,13 +1,21 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-from app.database.db import news_already_in_db, save_news_to_db
-from app.feature_engineering import clean_text, body_to_vectors, save_corpus
-from app.large_language_model.Ollama import llama3_sentiment
-from app.machine_learning.single_pass_clustering import real_time_single_pass_clustering
-from fake_useragent import UserAgent
 import random
 import time
+from datetime import datetime
+
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+from app.database.db import news_already_in_db, save_news_to_db
+from app.feature_engineering import (
+    body_to_vectors,
+    clean_text,
+    # save_corpus
+)
+from app.large_language_model.Ollama import llama3_sentiment
+from app.machine_learning.single_pass_clustering import (
+    real_time_single_pass_clustering,
+)
 
 ua = UserAgent()
 
@@ -15,7 +23,9 @@ ua = UserAgent()
 def format_date(date_text):
     try:
         published_date = datetime.strptime(
-            date_text.replace("BST, ", "").replace("BST ", ""), "%H:%M %d %B %Y"
+            date_text.replace("BST, ", "")
+            .replace("BST ", ""),
+            "%H:%M %d %B %Y"
         )
         return published_date
     except ValueError:
@@ -38,7 +48,12 @@ def fetch_article_data(article_url):
 
     try:
         headline = (
-            soup.h1.text.replace("EXCLUSIVE", "").replace("BREAKING NEWS", "").strip()
+            (
+                soup.h1.text
+                .replace("EXCLUSIVE", "")
+                .replace("BREAKING NEWS", "")
+                .strip()
+            )
         )
     except AttributeError:
         return None
@@ -80,7 +95,9 @@ def process_article(article_url):
             # save_corpus(clean_text(body))
             sentiment = llama3_sentiment(article_url)  # when corpus
             tfidf_matrix, feature_names = body_to_vectors([clean_text(body)])
-            cluster = real_time_single_pass_clustering(tfidf_matrix, feature_names)
+            cluster = real_time_single_pass_clustering(
+                tfidf_matrix, feature_names
+            )
             save_news_to_db(
                 article_url, headline, formatted_date, body, sentiment, cluster
             )
@@ -94,7 +111,8 @@ def process_article(article_url):
 def dailymail_scraper():
 
     headers = {"User-Agent": ua.random}
-    response = requests.get("https://www.dailymail.co.uk", headers=headers).text
+    url = "https://www.dailymail.co.uk"
+    response = requests.get(url, headers=headers).text
     soup = BeautifulSoup(response, "lxml").find("div", itemprop="mainEntity")
 
     articles = soup.find_all("div", itemprop="itemListElement")

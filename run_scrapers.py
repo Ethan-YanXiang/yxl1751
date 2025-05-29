@@ -1,8 +1,10 @@
-import schedule
 import time
+
+import schedule
+
 from app import app, db
-from app.feature_engineering import train_and_save_tfidf_vectorizer
 from app.database.db import delete_old_news
+from app.feature_engineering import train_and_save_tfidf_vectorizer
 from app.web_scrapers import run_all_scrapers
 
 
