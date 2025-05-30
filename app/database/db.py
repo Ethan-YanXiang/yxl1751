@@ -1,9 +1,11 @@
-import numpy as np
-from app import db
-from app.models import Cluster, Article
-from app.feature_engineering import clean_text, body_to_vectors
-from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timedelta
+
+import numpy as np
+from sqlalchemy.exc import SQLAlchemyError
+
+from app import db
+from app.feature_engineering import body_to_vectors, clean_text
+from app.models import Article, Cluster
 
 
 def news_already_in_db(article_url):

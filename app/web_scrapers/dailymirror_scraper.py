@@ -1,30 +1,40 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-from app.database.db import news_already_in_db, save_news_to_db
-from app.feature_engineering import clean_text, body_to_vectors, save_corpus
-from app.large_language_model.Ollama import llama3_sentiment
-from app.machine_learning.single_pass_clustering import real_time_single_pass_clustering
-from fake_useragent import UserAgent
 import random
 import time
+from datetime import datetime
+
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+from app.database.db import news_already_in_db, save_news_to_db
+from app.feature_engineering import body_to_vectors, clean_text, save_corpus
+from app.large_language_model.Ollama import llama3_sentiment
+from app.machine_learning.single_pass_clustering import real_time_single_pass_clustering
 
 ua = UserAgent()
 
 
 def format_date(date_text):
     try:
-        published_date = datetime.strptime(date_text, '%H:%M, %d %b %Y')
+        published_date = datetime.strptime(date_text, "%H:%M, %d %b %Y")
         return published_date
     except ValueError:
         return None
 
 
+def get_date(soup_date):
+    date_text = [_.text.strip() for _ in soup_date]
+    for date in date_text:
+        if "Updated" in date:
+            return format_date(date.replace("Updated", "").strip())
+    return format_date(date_text[-1].strip())
+
+
 def fetch_article_data(article_url):
     time.sleep(random.uniform(0, 1))
-    headers = {'User-Agent': ua.random}
+    headers = {"User-Agent": ua.random}
     response = requests.get(article_url, headers=headers).text
-    soup = BeautifulSoup(response, 'lxml')
+    soup = BeautifulSoup(response, "lxml").article
 
     try:
         headline = soup.h1.text.strip()
@@ -32,24 +42,26 @@ def fetch_article_data(article_url):
         return None
 
     try:
-        soup_ul_li = soup.find('ul', class_='time-info').find_all('li')
-        formatted_date = None
-        for i in soup_ul_li:
-            date_text = i.text.strip()
-            if 'Updated' in date_text:
-                formatted_date = format_date(date_text.replace('Updated', '').strip())
-        if not formatted_date:
-            formatted_date = format_date(soup_ul_li[0].text.strip())
+        soup_ul_li = soup.find("ul", class_="time-info").find_all("li")
+        formatted_date = get_date(soup_ul_li)
     except AttributeError:
-        return None
+        try:
+            soup_div_span = soup.find(
+                "div", class_="Byline_dates-container__Rqzf2"
+            ).find_all("span")
+            formatted_date = get_date(soup_div_span)
+        except AttributeError:
+            return None
 
     try:
-        paragraphs = soup.find('div', itemprop='articleBody').find_all('p')
-        body = ' '.join(p.text.strip() for p in paragraphs).strip()
-        if not body:
-            return None
+        paragraphs = soup.find("div", itemprop="articleBody").find_all("p")
+        body = " ".join(p.text.strip() for p in paragraphs).strip()
     except AttributeError:
-        return None
+        try:
+            paragraphs = soup.find_all("p")
+            body = " ".join(p.text.strip() for p in paragraphs).strip()
+        except AttributeError:
+            return None
 
     return headline, formatted_date, body
 
@@ -65,24 +77,26 @@ def process_article(article_url):
             sentiment = llama3_sentiment(article_url)  # when corpus
             tfidf_matrix, feature_names = body_to_vectors([clean_text(body)])
             cluster = real_time_single_pass_clustering(tfidf_matrix, feature_names)
-            article_id = save_news_to_db(article_url, headline, formatted_date, body, sentiment, cluster)
-            print(f'added {article_id} article to db: {headline}')
+            save_news_to_db(
+                article_url, headline, formatted_date, body, sentiment, cluster
+            )
+            print(f"Added article to db: {headline}")
         else:
-            print(f'Failed to fetch all article data from: {article_url}')
+            print(f"Failed to fetch all article data from: {article_url}")
     else:
-        print(f'already in db: {article_url}')
+        print(f"already in db: {article_url}")
 
 
 def dailymirror_scraper():
 
-    headers = {'User-Agent': ua.random}
-    response = requests.get('https://www.mirror.co.uk', headers=headers).text
-    soup = BeautifulSoup(response, 'lxml')
+    headers = {"User-Agent": ua.random}
+    response = requests.get("https://www.mirror.co.uk", headers=headers).text
+    soup = BeautifulSoup(response, "lxml")
 
-    articles = soup.find_all('article', class_='story')
+    articles = soup.find_all("article", class_="story")
 
     for article in articles:
-        a_tag = article.find('a')
+        a_tag = article.find("a")
         if a_tag and "href" in a_tag.attrs:
             article_url = a_tag["href"]
             process_article(article_url)

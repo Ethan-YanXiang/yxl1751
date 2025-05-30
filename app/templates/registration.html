@@ -1,12 +1,17 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 <form method="POST" action="" novalidate>
+
     {{ form.hidden_tag() }}
 
     <div>
         {{ form.username.label }}<br />
         {{ form.username(size=30) }}<br />
         {% for error in form.username.errors %}
-        <span style="color: red"> {{ error }} </span>
+        <span style="color: red;">
+            {{ error }}
+        </span>
         {% endfor %}<br />
     </div>
 
@@ -14,7 +19,9 @@
         {{ form.email.label }}<br />
         {{ form.email(size=30) }}<br />
         {% for error in form.email.errors %}
-        <span style="color: red"> {{ error }} </span>
+        <span style="color: red;">
+            {{ error }}
+        </span>
         {% endfor %}<br />
     </div>
 
@@ -22,7 +29,9 @@
         {{ form.password.label }}<br />
         {{ form.password(size=30) }}<br />
         {% for error in form.password.errors %}
-        <span style="color: red"> {{ error }} </span>
+        <span style="color: red;">
+            {{ error }}
+        </span>
         {% endfor %}<br />
     </div>
 
@@ -30,10 +39,15 @@
         {{ form.confirm_password.label }}<br />
         {{ form.confirm_password(size=30) }}<br />
         {% for error in form.confirm_password.errors %}
-        <span style="color: red"> {{ error }} </span>
+        <span style="color: red;">
+            {{ error }}
+        </span>
         {% endfor %}<br />
     </div>
 
-    <div>{{ form.submit() }}</div>
+    <div>
+        {{ form.submit() }}
+    </div>
+
 </form>
 {% endblock content %}

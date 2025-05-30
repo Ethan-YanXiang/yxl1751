@@ -1,10 +1,11 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from app.database.db import (
-    save_cluster_to_db,
-    update_cluster_in_db,
     get_clusters_from_db,
     get_keywords,
+    save_cluster_to_db,
+    update_cluster_in_db,
 )
 
 

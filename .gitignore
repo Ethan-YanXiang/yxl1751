@@ -169,3 +169,5 @@ data.sqlite
 
 # Ignore tfidf_vectorizer.pkl
 tfidf_vectorizer.pkl
+
+.vscode/

@@ -1,10 +1,12 @@
+from urllib.parse import urlsplit
+
+from flask import flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import Article, Cluster, User
 from app.large_language_model.Ollama import llama3_summary
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import current_user, login_user, logout_user, login_required
-from urllib.parse import urlsplit
+from app.models import Article, Cluster, User
 
 
 @app.route("/")
@@ -85,7 +87,10 @@ def article_func(article_id):
     article = Article.query.get(article_id)
     summary = llama3_summary(article.url)
     return render_template(
-        "article.html", article=article, summary=summary, title=article.headline
+        "article.html",
+        article=article,
+        summary=summary,
+        title=article.headline
     )
 
 

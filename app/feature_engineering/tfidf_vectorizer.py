@@ -1,7 +1,9 @@
 import os
 import pickle
-from app import basedir
+
 from sklearn.feature_extraction.text import TfidfVectorizer
+
+from app import basedir
 
 basedir = basedir
 corpus_file = os.path.join(basedir, "data", "corpus.pkl")

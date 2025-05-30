@@ -101,4 +101,40 @@
 </div>
 {% endfor %}
 
+<div class="container mt-4">
+    <button id="toggle-collapse-btn" class="btn btn-primary" type="button">
+        Expand All
+    </button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggle-collapse-btn');
+        let expanded = false;  // Track current state
+
+        toggleBtn.addEventListener('click', function () {
+            // Get all collapse elements inside topics
+            const collapses = document.querySelectorAll('[id^="collapse"]');
+
+            if (!expanded) {
+                // Expand all
+                collapses.forEach(collapseEl => {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                    bsCollapse.show();
+                });
+                toggleBtn.textContent = 'Collapse All';
+                expanded = true;
+            } else {
+                // Collapse all
+                collapses.forEach(collapseEl => {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                    bsCollapse.hide();
+                });
+                toggleBtn.textContent = 'Expand All';
+                expanded = false;
+            }
+        });
+    });
+</script>
+
 {% endblock content %}
