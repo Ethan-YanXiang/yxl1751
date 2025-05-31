@@ -13,7 +13,6 @@ from app.models import Article, Cluster, User
 @app.route("/index")
 @login_required
 def home_func():
-    sort_order = request.args.get("sort", "desc")
 
     total_clusters = Cluster.query.count()
     total_articles = Article.query.count()
@@ -38,22 +37,14 @@ def home_func():
         .count()
     )
 
-    if sort_order == "desc":
-        clusters_with_multiple_articles = (
-            Cluster.query.join(Article)
-            .group_by(Cluster.id)
-            .having(db.func.count(Article.id) >= 3)
-            .order_by(db.func.count(Article.id).desc())
-            .all()
-        )
-    else:
-        clusters_with_multiple_articles = (
-            Cluster.query.join(Article)
-            .group_by(Cluster.id)
-            .having(db.func.count(Article.id) >= 3)
-            .order_by(db.func.count(Article.id).asc())
-            .all()
-        )
+    sort_order = request.args.get("sort", "desc")
+    clusters_with_multiple_articles = (
+        Cluster.query.join(Article)
+        .group_by(Cluster.id)
+        .having(db.func.count(Article.id) >= 3)
+        .order_by(db.func.count(Article.id).desc() if sort_order == "desc" else db.func.count(Article.id).asc())
+        .all()
+    )
 
     topics_with_news = []
     for hot_topic in clusters_with_multiple_articles:
@@ -62,7 +53,6 @@ def home_func():
             .order_by(Article.published_date.desc())
             .all()
         )
-
         topics_with_news.append(
             {
                 "hot_topic": hot_topic,
