@@ -33,11 +33,7 @@ def get_date(soup_date):
 def fetch_article_data(article_url):
     time.sleep(random.uniform(0, 1))
     headers = {"User-Agent": ua.random}
-    if article_url.startswith("http://") or article_url.startswith("https://"):
-        response = requests.get(article_url, headers=headers).text
-    else:
-        print(f"Skip non-http(s) url: {article_url}")
-        return None
+    response = requests.get(article_url, headers=headers).text
     soup = BeautifulSoup(response, "lxml")
 
     try:
@@ -93,4 +89,8 @@ def thesun_scraper():
         a_tag = article.find("a")
         if a_tag and "href" in a_tag.attrs:
             article_url = a_tag["href"]
-            process_article(article_url.strip())
+            # 這裡需要檢查 URL 是否有效
+            if article_url.startswith("http://") or article_url.startswith("https://"):
+                process_article(article_url.strip())
+            else:
+                print(f"Skip non-http(s) url: {article_url}")
